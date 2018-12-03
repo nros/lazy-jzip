@@ -10,7 +10,7 @@ import java.util.zip.DeflaterInputStream;
 
 public class DeflaterCheckedInputStream extends FilterInputStream {
     long compressedSize = 0;
-    CountingCRC32 checksum = new CountingCRC32();
+    ByteCountingCRC32 checksum = new ByteCountingCRC32();
 
     DeflaterCheckedInputStream(final InputStream in) {
         super(null);
@@ -50,6 +50,6 @@ public class DeflaterCheckedInputStream extends FilterInputStream {
     }
 
     public DataDescriptor getDataDescriptor() {
-        return new DataDescriptor(this.checksum.getValue(), this.compressedSize, this.checksum.getCounter());
+        return new DataDescriptor(this.checksum.getValue(), this.compressedSize, this.checksum.getByteCounter());
     }
 }

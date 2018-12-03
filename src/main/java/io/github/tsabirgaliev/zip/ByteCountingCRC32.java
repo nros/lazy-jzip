@@ -3,7 +3,7 @@ package io.github.tsabirgaliev.zip;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
-public class CountingCRC32 implements Checksum {
+public class ByteCountingCRC32 implements Checksum {
     CRC32 checksum = new CRC32();
     long counter = 0;
 
@@ -29,7 +29,7 @@ public class CountingCRC32 implements Checksum {
         this.checksum.reset();
     }
 
-    public long getCounter() {
+    public long getByteCounter() {
         return this.counter;
     }
 }
