@@ -14,8 +14,8 @@ import java.util.zip.Checksum;
  * @author nros <508093+nros@users.noreply.github.com>
  */
 public class ByteCountingCRC32 implements Checksum {
-    CRC32 checksum = new CRC32();
-    long counter = 0;
+    private final CRC32 checksum = new CRC32();
+    private long counter = 0;
 
     @Override
     public void update(final int b) {
