@@ -24,9 +24,17 @@ public class ByteCountingCRC32 implements Checksum {
     }
 
     @Override
-    public void update(final byte[] b, final int off, final int len) {
-        this.checksum.update(b, off, len);
-        this.counter += len;
+    public void update(final byte[] bytes, final int offset, final int length) {
+
+        if (
+            bytes != null && bytes.length > 0 && length > 0
+            && offset >= 0 && offset < bytes.length
+        ) {
+            this.checksum.update(bytes, offset, Math.min(length, bytes.length - offset));
+
+            // the byte array may be shorter than the specified length to use
+            this.counter += Math.min(length, bytes.length - offset);
+        }
     }
 
     @Override
