@@ -1,4 +1,4 @@
-package io.github.tsabirgaliev.lazyzip;
+package io.github.tsabirgaliev.zip;
 
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;

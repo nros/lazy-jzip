@@ -1,4 +1,4 @@
-package io.github.tsabirgaliev.lazyzip;
+package io.github.tsabirgaliev.zip;
 
 import java.io.InputStream;
 
