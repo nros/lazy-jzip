@@ -1,0 +1,26 @@
+
+apply plugin: "java"
+apply plugin: "maven"
+
+group = "io.github.tsabirgaliev"
+version = "1.0.0.Beta3"
+
+description = "Lazy streaming zip"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    testCompile group: "commons-io", name: "commons-io", version:"2.5"
+}
