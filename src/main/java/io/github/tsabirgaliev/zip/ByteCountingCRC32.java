@@ -27,6 +27,7 @@ public class ByteCountingCRC32 implements Checksum {
     @Override
     public void reset() {
         this.checksum.reset();
+        this.counter = 0L;
     }
 
     public long getByteCounter() {
