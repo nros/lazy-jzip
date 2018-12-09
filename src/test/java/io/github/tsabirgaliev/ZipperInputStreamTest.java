@@ -46,6 +46,11 @@ public class ZipperInputStreamTest {
         public InputStream getStream() {
             return new ByteArrayInputStream(ZipperInputStreamTest.this.file1data);
         }
+
+        @Override
+        public ZipEntry getZipEntry() {
+            return null;
+        }
     };
 
     ZipEntryData file2 = new ZipEntryData() {
@@ -57,6 +62,11 @@ public class ZipperInputStreamTest {
         @Override
         public InputStream getStream() {
             return new ByteArrayInputStream(ZipperInputStreamTest.this.file2data);
+        }
+
+        @Override
+        public ZipEntry getZipEntry() {
+            return null;
         }
     };
 

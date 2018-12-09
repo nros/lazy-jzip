@@ -54,7 +54,7 @@ public class ZipperInputStream extends SequenceInputStream {
                 try {
                     if (enumeration.hasMoreElements()) {
                         final ZipEntryData zipEntryData = enumeration.nextElement();
-                        final LocalFileHeader lfh = new LocalFileHeader(zipEntryData.getPath());
+                        final LocalFileHeader lfh = new LocalFileHeader(zipEntryData);
                         final ByteArrayInputStream lfhIn = new ByteArrayInputStream(lfh.getBytes());
                         final DeflaterDDInputStream dddIn = new DeflaterDDInputStream(zipEntryData.getStream(), dd -> {
                             this.fileEntries.add(new FileEntry(lfh, dd));

@@ -48,8 +48,17 @@ public class LocalFileHeader {
     long extra_field_length = 0;
     byte[] file_name = {};
 
-    public LocalFileHeader(final String filename) {
-        this.file_name = filename.getBytes(Charset.forName("UTF-8"));
+
+    private final ZipEntryData _zipEntryData;
+
+    public LocalFileHeader(final ZipEntryData zipEntryData) {
+
+        if (zipEntryData == null) {
+            throw new IllegalArgumentException("invalid zip entra data provided <null>");
+        }
+
+        this._zipEntryData = zipEntryData;
+        this.file_name = this._zipEntryData.getPath().getBytes(Charset.forName("UTF-8"));
     }
 
     public byte[] getBytes() throws IOException {
