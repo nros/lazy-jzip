@@ -4,11 +4,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class FileHeader {
-    long signature = 0x02014b50;
+
+
+    private final static long PACKET_SIGNATURE      = 0x02014b50;
+    private final static byte[] EXTERNAL_ATTRIBUTES = {0x0, 0x0, (byte)0xa4, (byte)0x81};
+
     long file_comment_length = 0;
     long disk_num_start = 0;
     long internal_attrs = 0;
-    byte[] external_attrs = {0x0, 0x0, (byte)0xa4, (byte)0x81};
     long local_header_offset = 0;
 
     LocalFileHeader lfh;
@@ -21,11 +24,11 @@ public class FileHeader {
     public byte[] getBytes() throws IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        baos.write(CentralDirectoryUtilities.bytes4(this.signature));
-        baos.write(this.lfh.version); // version made by
-        baos.write(this.lfh.version); // version needed to extract
-        baos.write(CentralDirectoryUtilities.bytes2(this.lfh.flags));
-        baos.write(CentralDirectoryUtilities.bytes2(this.lfh.compression_method));
+        baos.write(CentralDirectoryUtilities.bytes4(FileHeader.PACKET_SIGNATURE));
+        baos.write(LocalFileHeader.PACKET_VERSION); // version made by
+        baos.write(LocalFileHeader.PACKET_VERSION); // version needed to extract
+        baos.write(CentralDirectoryUtilities.bytes2(LocalFileHeader.PACKET_FLAGS));
+        baos.write(CentralDirectoryUtilities.bytes2(LocalFileHeader.COMPRESSION_METHOD_DEFLATE));
         baos.write(this.lfh.modification_time);
         baos.write(this.lfh.modification_date);
         baos.write(CentralDirectoryUtilities.bytes4(this.lfh.crc32_checksum));
@@ -36,7 +39,7 @@ public class FileHeader {
         baos.write(CentralDirectoryUtilities.bytes2(this.file_comment_length));
         baos.write(CentralDirectoryUtilities.bytes2(this.disk_num_start));
         baos.write(CentralDirectoryUtilities.bytes2(this.internal_attrs));
-        baos.write(this.external_attrs);
+        baos.write(FileHeader.EXTERNAL_ATTRIBUTES);
         baos.write(CentralDirectoryUtilities.bytes4(this.local_header_offset));
         baos.write(this.lfh.file_name);
 

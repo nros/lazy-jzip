@@ -4,7 +4,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class DataDescriptor {
-    long signature = 0x08074b50;
+
+    private static final long PACKET_SIGNATURE = 0x08074b50;
+
     long crc32_checksum;
     long compressed_size;
     long uncompressed_size;
@@ -18,7 +20,7 @@ public class DataDescriptor {
     public byte[] getBytes() throws IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        baos.write(CentralDirectoryUtilities.bytes4(this.signature));
+        baos.write(CentralDirectoryUtilities.bytes4(DataDescriptor.PACKET_SIGNATURE));
         baos.write(CentralDirectoryUtilities.bytes4(this.crc32_checksum));
         baos.write(CentralDirectoryUtilities.bytes4(this.compressed_size));
         baos.write(CentralDirectoryUtilities.bytes4(this.uncompressed_size));

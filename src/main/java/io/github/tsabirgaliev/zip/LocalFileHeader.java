@@ -6,13 +6,14 @@ import java.nio.charset.Charset;
 import java.util.Calendar;
 
 public class LocalFileHeader {
-    long signature = 0x04034b50;
 
-    byte[] version = {20, 0};
-    long flags     = (1 << 3)   // DataDescriptor used
-                   | (1 << 11); // file_name is UTF-8
+    public final static long   PACKET_SIGNATURE = 0x04034b50;
+    public final static byte[] PACKET_VERSION    = {20, 0};
+    public final static long   PACKET_FLAGS     = (1 << 3)   // DataDescriptor used
+                                                | (1 << 11); // file_name is UTF-8
 
-    long compression_method = 8; // DEFLATE
+    public final static long   COMPRESSION_METHOD_DEFLATE = 8; // DEFLATE
+
 
     static byte[] currentDosTime(final Calendar cal) {
         final int result = (cal.get(Calendar.HOUR_OF_DAY) << 11)
@@ -35,6 +36,7 @@ public class LocalFileHeader {
                 (byte)(result >> 8)
         };
     }
+
 
     byte[] modification_time = LocalFileHeader.currentDosTime(Calendar.getInstance())
     , modification_date = LocalFileHeader.currentDosDate(Calendar.getInstance())
@@ -64,10 +66,10 @@ public class LocalFileHeader {
     public byte[] getBytes() throws IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        baos.write(CentralDirectoryUtilities.bytes4(this.signature));
-        baos.write(this.version);
-        baos.write(CentralDirectoryUtilities.bytes2(this.flags));
-        baos.write(CentralDirectoryUtilities.bytes2(this.compression_method));
+        baos.write(CentralDirectoryUtilities.bytes4(LocalFileHeader.PACKET_SIGNATURE));
+        baos.write(LocalFileHeader.PACKET_VERSION);
+        baos.write(CentralDirectoryUtilities.bytes2(LocalFileHeader.PACKET_FLAGS));
+        baos.write(CentralDirectoryUtilities.bytes2(LocalFileHeader.COMPRESSION_METHOD_DEFLATE));
         baos.write(this.modification_time);
         baos.write(this.modification_date);
         baos.write(CentralDirectoryUtilities.bytes4(this.crc32_checksum));
