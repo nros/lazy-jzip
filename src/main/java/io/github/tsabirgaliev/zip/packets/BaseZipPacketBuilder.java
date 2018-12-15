@@ -1,16 +1,16 @@
 package io.github.tsabirgaliev.zip;
 
 
-public abstract class CentralDirectoryUtilities {
+public abstract class BaseZipPacketBuilder {
 
-    static byte[] bytes2(final long i) {
+    protected byte[] convertLongToUInt16(final long i) {
         return new byte[] {
                 (byte)(i >> 0),
                 (byte)(i >> 8)
         };
     }
 
-    static byte[] bytes4(final long i) {
+    protected byte[] convertLongToUInt32(final long i) {
         return new byte[] {
                 (byte)(i >> 0),
                 (byte)(i >> 8),
@@ -18,6 +18,4 @@ public abstract class CentralDirectoryUtilities {
                 (byte)(i >> 24)
         };
     }
-
-
 }

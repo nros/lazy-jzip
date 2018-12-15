@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author Tair Sabirgaliev <tair.sabirgaliev@gmail.com>
  * @author nros <508093+nros@users.noreply.github.com>
  */
-public class DataDescriptor {
+public class DataDescriptor extends BaseZipPacketBuilder {
 
     private static final long PACKET_SIGNATURE = 0x08074b50;
 
@@ -34,10 +34,10 @@ public class DataDescriptor {
     public byte[] getBytes() throws IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        baos.write(CentralDirectoryUtilities.bytes4(DataDescriptor.PACKET_SIGNATURE));
-        baos.write(CentralDirectoryUtilities.bytes4(this.crc32_checksum));
-        baos.write(CentralDirectoryUtilities.bytes4(this.compressed_size));
-        baos.write(CentralDirectoryUtilities.bytes4(this.uncompressed_size));
+        baos.write(this.convertLongToUInt32(DataDescriptor.PACKET_SIGNATURE));
+        baos.write(this.convertLongToUInt32(this.crc32_checksum));
+        baos.write(this.convertLongToUInt32(this.compressed_size));
+        baos.write(this.convertLongToUInt32(this.uncompressed_size));
 
         baos.close();
 

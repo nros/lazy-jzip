@@ -11,7 +11,7 @@ import java.util.Calendar;
  * @author Tair Sabirgaliev <tair.sabirgaliev@gmail.com>
  * @author nros <508093+nros@users.noreply.github.com>
  */
-public class LocalFileHeader {
+public class LocalFileHeader extends BaseZipPacketBuilder {
 
     public final static long   PACKET_SIGNATURE = 0x04034b50;
     public final static byte[] PACKET_VERSION    = {20, 0};
@@ -72,19 +72,19 @@ public class LocalFileHeader {
     public byte[] getBytes() throws IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        baos.write(CentralDirectoryUtilities.bytes4(LocalFileHeader.PACKET_SIGNATURE));
+        baos.write(this.convertLongToUInt32(LocalFileHeader.PACKET_SIGNATURE));
         baos.write(LocalFileHeader.PACKET_VERSION);
-        baos.write(CentralDirectoryUtilities.bytes2(LocalFileHeader.PACKET_FLAGS));
-        baos.write(CentralDirectoryUtilities.bytes2(LocalFileHeader.COMPRESSION_METHOD_DEFLATE));
+        baos.write(this.convertLongToUInt16(LocalFileHeader.PACKET_FLAGS));
+        baos.write(this.convertLongToUInt16(LocalFileHeader.COMPRESSION_METHOD_DEFLATE));
         baos.write(this.modification_time);
         baos.write(this.modification_date);
-        baos.write(CentralDirectoryUtilities.bytes4(this.crc32_checksum));
-        baos.write(CentralDirectoryUtilities.bytes4(this.compressed_size));
-        baos.write(CentralDirectoryUtilities.bytes4(this.uncompressed_size));
+        baos.write(this.convertLongToUInt32(this.crc32_checksum));
+        baos.write(this.convertLongToUInt32(this.compressed_size));
+        baos.write(this.convertLongToUInt32(this.uncompressed_size));
 
-        baos.write(CentralDirectoryUtilities.bytes2(this.file_name.length));
+        baos.write(this.convertLongToUInt16(this.file_name.length));
 
-        baos.write(CentralDirectoryUtilities.bytes2(this.extra_field_length));
+        baos.write(this.convertLongToUInt16(this.extra_field_length));
         baos.write(this.file_name);
 
         baos.close();

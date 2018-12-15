@@ -15,7 +15,7 @@ import java.io.IOException;
  * @author Tair Sabirgaliev <tair.sabirgaliev@gmail.com>
  * @author nros <508093+nros@users.noreply.github.com>
  */
-public class End {
+public class End extends BaseZipPacketBuilder {
 
     private static final long PACKET_SIGNATURE = 0x06054b50;
     private static final long NUMBER_OF_ARHIVE_PARTS = 0;
@@ -37,14 +37,14 @@ public class End {
     public byte[] getBytes() throws IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        baos.write(CentralDirectoryUtilities.bytes4(End.PACKET_SIGNATURE));
-        baos.write(CentralDirectoryUtilities.bytes2(End.NUMBER_OF_ARHIVE_PARTS));
-        baos.write(CentralDirectoryUtilities.bytes2(End.ARHIVE_NUMBER_WITH_DIRECTORY));
-        baos.write(CentralDirectoryUtilities.bytes2(this.disk_entries));
-        baos.write(CentralDirectoryUtilities.bytes2(this.total_entries));
-        baos.write(CentralDirectoryUtilities.bytes4(this.cd_size));
-        baos.write(CentralDirectoryUtilities.bytes4(this.cd_offset));
-        baos.write(CentralDirectoryUtilities.bytes2(this.comment_length));
+        baos.write(this.convertLongToUInt32(End.PACKET_SIGNATURE));
+        baos.write(this.convertLongToUInt16(End.NUMBER_OF_ARHIVE_PARTS));
+        baos.write(this.convertLongToUInt16(End.ARHIVE_NUMBER_WITH_DIRECTORY));
+        baos.write(this.convertLongToUInt16(this.disk_entries));
+        baos.write(this.convertLongToUInt16(this.total_entries));
+        baos.write(this.convertLongToUInt32(this.cd_size));
+        baos.write(this.convertLongToUInt32(this.cd_offset));
+        baos.write(this.convertLongToUInt16(this.comment_length));
 
         baos.close();
 

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.tsabirgaliev.zip.BaseZipPacketBuilder;
+
 
 /***
  * this helps building the central directory of the ZIP archive, which every archive contains.
@@ -16,7 +18,7 @@ import java.util.List;
  * @author Tair Sabirgaliev <tair.sabirgaliev@gmail.com>
  * @author nros <508093+nros@users.noreply.github.com>
  */
-public class CentralDirectory {
+public class CentralDirectory extends BaseZipPacketBuilder {
 
     public List<FileHeader> headers;
     public End              end;
