@@ -35,6 +35,17 @@ import io.github.tsabirgaliev.zip.ZipEntryData;
 /**
  * ZipperInputStream lets you lazily provide file names and data streams
  * in spirit of java.util.zip.DeflaterInputStream.
+ *
+ * the ZIP format created mimics the version by Java and should be compatible. Only single ZIP file is supported
+ * with a single central directory. So no multiple spanned ZIP files are created.
+ *
+ * @author Tair Sabirgaliev <tair.sabirgaliev@gmail.com>
+ * @author nros <508093+nros@users.noreply.github.com>
+ *
+ * @see https://en.wikipedia.org/wiki/Zip_(file_format)
+ * @see http://www.info-zip.org/doc/appnote-19970311-iz.zip
+ * @see https://pkware.cachefly.net/webdocs/APPNOTE/APPNOTE-4.5.0.txt
+ * @see https://users.cs.jmu.edu/buchhofp/forensics/formats/pkzip.html
  */
 public class ZipperInputStream extends SequenceInputStream {
 

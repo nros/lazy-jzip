@@ -3,6 +3,15 @@ package io.github.tsabirgaliev.zip;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+/***
+ * creates the bytes of the file header in the central directory, which contains information about the compressed bytes
+ *
+ * Most important, it contains the offset from the start of the file where the local file header is located. This is
+ * vital to locate the compressed data.
+ *
+ * @author Tair Sabirgaliev <tair.sabirgaliev@gmail.com>
+ * @author nros <508093+nros@users.noreply.github.com>
+ */
 public class FileHeader {
 
 

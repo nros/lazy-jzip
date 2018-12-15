@@ -8,6 +8,15 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterInputStream;
 
 
+/***
+ * counts the amount of bytes and checksum while reading from the {@code InputStream}.
+ *
+ * After consuming all the bytes from the {@link java.io.InputStream}, the optional {@link DataDescriptor}
+ * is created to be added to the ZIP stream after the compressed entry.
+ *
+ * @author Tair Sabirgaliev <tair.sabirgaliev@gmail.com>
+ * @author nros <508093+nros@users.noreply.github.com>
+ */
 public class DeflaterCheckedInputStream extends FilterInputStream {
     long compressedSize = 0;
     ByteCountingCRC32 checksum = new ByteCountingCRC32();

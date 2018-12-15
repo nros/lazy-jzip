@@ -5,6 +5,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/***
+ * this helps building the central directory of the ZIP archive, which every archive contains.
+ *
+ * The central directory is located at the end of the ZIP file. It can be located by looking for the
+ * "End of central directory record (EOCD)", which contains an offset from the beginning where the central directory
+ * starts. The EOCD uses a special signature byte in order to locate it at the end of the file.
+ *
+ * @author Tair Sabirgaliev <tair.sabirgaliev@gmail.com>
+ * @author nros <508093+nros@users.noreply.github.com>
+ */
 public class CentralDirectory {
 
     public List<FileHeader> headers;

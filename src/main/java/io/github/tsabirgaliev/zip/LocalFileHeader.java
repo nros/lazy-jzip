@@ -5,6 +5,12 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Calendar;
 
+/***
+ * creates the bytes of the local file header packet, which prepends the compressed data of the entry.
+ *
+ * @author Tair Sabirgaliev <tair.sabirgaliev@gmail.com>
+ * @author nros <508093+nros@users.noreply.github.com>
+ */
 public class LocalFileHeader {
 
     public final static long   PACKET_SIGNATURE = 0x04034b50;

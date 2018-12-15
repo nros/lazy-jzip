@@ -3,6 +3,20 @@ package io.github.tsabirgaliev.zip;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+/***
+ * creates the bytes of the data descriptor packet, which is used to hold some size information about an entry.
+ *
+ * The "data descriptor" is an optional, additional structure, added to the ZIP file after the compressed data
+ * of the entry. It contains information about the sizes and CRC32 of the compressed data, which have not been
+ * calculated prior to adding the compressed data to the ZIP file.
+ *
+ * This is very handy, as this package handles arbitrary {@link java.io.InputStream}, where it is impossible
+ * know the sizes in advance. Although this packet is optional, it is used extensively with this ZIP packager.
+ * All this to read the bytes of the compressed entry and add the sizes afterwards.
+ *
+ * @author Tair Sabirgaliev <tair.sabirgaliev@gmail.com>
+ * @author nros <508093+nros@users.noreply.github.com>
+ */
 public class DataDescriptor {
 
     private static final long PACKET_SIGNATURE = 0x08074b50;

@@ -3,6 +3,18 @@ package io.github.tsabirgaliev.zip;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+
+/***
+ * builds the end packet of the central directory (EOCD), which can be detected because of its special signature.
+ *
+ * The location of the central directory (CED) within a ZIP file is found by reading the ending packet of the CED.
+ * This end packet contains information about the beginning of the CED and the amount of parts of it.
+ * So unzippers read the end of the file backwards until they read the package signature of this ending packet.
+ * Then the CED can be located.
+ *
+ * @author Tair Sabirgaliev <tair.sabirgaliev@gmail.com>
+ * @author nros <508093+nros@users.noreply.github.com>
+ */
 public class End {
 
     private static final long PACKET_SIGNATURE = 0x06054b50;
