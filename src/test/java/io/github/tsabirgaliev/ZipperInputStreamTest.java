@@ -100,7 +100,7 @@ public class ZipperInputStreamTest {
         }
 
 
-
+        zis.close();
 
     }
 
@@ -108,5 +108,6 @@ public class ZipperInputStreamTest {
         final ZipperInputStream lzis = new ZipperInputStream(ZipperInputStreamTest.enumerate(this.file1, this.file2));
 
         Files.copy(lzis, Paths.get("target", "output.zip"), StandardCopyOption.REPLACE_EXISTING);
+        lzis.close();
     }
 }
