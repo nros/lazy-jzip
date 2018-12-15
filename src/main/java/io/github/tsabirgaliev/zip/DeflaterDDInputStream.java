@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Consumer;
 
+import io.github.tsabirgaliev.zip.packets.DataDescriptor;
+
 public class DeflaterDDInputStream extends InputStream {
     private final Consumer<DataDescriptor> ddConsumer;
     DeflaterCheckedInputStream in;

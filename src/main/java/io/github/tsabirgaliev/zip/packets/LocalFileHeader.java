@@ -1,9 +1,11 @@
-package io.github.tsabirgaliev.zip;
+package io.github.tsabirgaliev.zip.packets;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Calendar;
+
+import io.github.tsabirgaliev.zip.ZipEntryData;
 
 /***
  * creates the bytes of the local file header packet, which prepends the compressed data of the entry.

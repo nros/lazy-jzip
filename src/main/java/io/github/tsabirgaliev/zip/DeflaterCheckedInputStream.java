@@ -7,6 +7,8 @@ import java.util.zip.CheckedInputStream;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterInputStream;
 
+import io.github.tsabirgaliev.zip.packets.DataDescriptor;
+
 
 /***
  * counts the amount of bytes and checksum while reading from the {@code InputStream}.

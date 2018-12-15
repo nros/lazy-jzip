@@ -1,4 +1,4 @@
-package io.github.tsabirgaliev.zip;
+package io.github.tsabirgaliev.zip.packets;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

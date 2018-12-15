@@ -26,11 +26,11 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import io.github.tsabirgaliev.zip.CentralDirectory;
 import io.github.tsabirgaliev.zip.DeflaterDDInputStream;
 import io.github.tsabirgaliev.zip.FileEntry;
-import io.github.tsabirgaliev.zip.LocalFileHeader;
 import io.github.tsabirgaliev.zip.ZipEntryData;
+import io.github.tsabirgaliev.zip.packets.CentralDirectory;
+import io.github.tsabirgaliev.zip.packets.LocalFileHeader;
 
 /**
  * ZipperInputStream lets you lazily provide file names and data streams
