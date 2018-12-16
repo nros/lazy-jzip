@@ -48,8 +48,6 @@ import io.github.tsabirgaliev.zip.packets.CentralDirectoryBuilder;
  */
 public class ZipperInputStream extends SequenceInputStream {
 
-    private final static CentralDirectoryBuilder centralDirectoryBuilder = new CentralDirectoryBuilder();
-
     public ZipperInputStream(final Enumeration<ZipEntryData> enumeration) throws IOException {
 
         super(new Enumeration<InputStream>() {
@@ -80,7 +78,7 @@ public class ZipperInputStream extends SequenceInputStream {
                 } else if (!this.wasCentralDirectoryProvided) {
 
                     this.wasCentralDirectoryProvided = true;
-                    return new ByteArrayInputStream(ZipperInputStream.centralDirectoryBuilder.getBytes(this.fileEntries));
+                    return new ByteArrayInputStream(new CentralDirectoryBuilder().getBytes(this.fileEntries));
                 }
 
                 throw new NoSuchElementException("No more elements to produce!");

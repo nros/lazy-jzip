@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.util.zip.ZipEntry;
 
 import io.github.tsabirgaliev.zip.io.DeflaterCheckedInputStream;
@@ -28,9 +29,9 @@ import io.github.tsabirgaliev.zip.packets.LocalFileHeaderBuilder;
  */
 public class ZipEntryDataWithCachedPacketsImpl implements ZipEntryDataWithCachedPackets {
 
-    private final static DataDescriptorBuilder      BUILDER_DATA_DESCRIPTOR = new DataDescriptorBuilder();
-    private final static DirectoryFileHeaderBuilder BUILDER_DIRECTORY_FILE_HEADER = new DirectoryFileHeaderBuilder();
-    private final static LocalFileHeaderBuilder     BUILDER_LOCAL_FILE_HEADER = new LocalFileHeaderBuilder();
+    private static WeakReference<DataDescriptorBuilder>      BUILDER_DATA_DESCRIPTOR = null;
+    private static WeakReference<DirectoryFileHeaderBuilder> BUILDER_DIRECTORY_FILE_HEADER = null;
+    private static WeakReference<LocalFileHeaderBuilder>     BUILDER_LOCAL_FILE_HEADER = null;
 
 
     private final ZipEntryData zipEntryData;
@@ -110,7 +111,14 @@ public class ZipEntryDataWithCachedPacketsImpl implements ZipEntryDataWithCached
     @Override
     public byte[] getDataDescriptor() {
         if (this.cachedDateDescriptor == null) {
-            this.cachedDateDescriptor = ZipEntryDataWithCachedPacketsImpl.BUILDER_DATA_DESCRIPTOR.getBytes(this);
+
+            DataDescriptorBuilder builder = ZipEntryDataWithCachedPacketsImpl.BUILDER_DATA_DESCRIPTOR != null ?
+                ZipEntryDataWithCachedPacketsImpl.BUILDER_DATA_DESCRIPTOR.get() : null;
+            if (builder == null) {
+               builder = new DataDescriptorBuilder();
+                ZipEntryDataWithCachedPacketsImpl.BUILDER_DATA_DESCRIPTOR = new WeakReference<>(builder);
+            }
+            this.cachedDateDescriptor = builder.getBytes(this);
         }
         return this.cachedDateDescriptor;
     }
@@ -118,7 +126,15 @@ public class ZipEntryDataWithCachedPacketsImpl implements ZipEntryDataWithCached
     @Override
     public byte[] getLocalFileHeader() {
         if (this.cachedLocalFileHeader == null) {
-            this.cachedLocalFileHeader = ZipEntryDataWithCachedPacketsImpl.BUILDER_LOCAL_FILE_HEADER.getBytes(this);
+
+            LocalFileHeaderBuilder builder = ZipEntryDataWithCachedPacketsImpl.BUILDER_LOCAL_FILE_HEADER != null ?
+                ZipEntryDataWithCachedPacketsImpl.BUILDER_LOCAL_FILE_HEADER.get() : null;
+            if (builder == null) {
+               builder = new LocalFileHeaderBuilder();
+                ZipEntryDataWithCachedPacketsImpl.BUILDER_LOCAL_FILE_HEADER = new WeakReference<>(builder);
+            }
+
+            this.cachedLocalFileHeader = builder.getBytes(this);
         }
         return this.cachedLocalFileHeader;
     }
@@ -126,7 +142,15 @@ public class ZipEntryDataWithCachedPacketsImpl implements ZipEntryDataWithCached
     @Override
     public byte[] getDirectoryFileHeader() {
         if (this.cachedDirectoryFileHeader == null) {
-            this.cachedDirectoryFileHeader = ZipEntryDataWithCachedPacketsImpl.BUILDER_DIRECTORY_FILE_HEADER.getBytes(this);;
+
+            DirectoryFileHeaderBuilder builder = ZipEntryDataWithCachedPacketsImpl.BUILDER_DIRECTORY_FILE_HEADER != null ?
+                ZipEntryDataWithCachedPacketsImpl.BUILDER_DIRECTORY_FILE_HEADER.get() : null;
+            if (builder == null) {
+               builder = new DirectoryFileHeaderBuilder();
+                ZipEntryDataWithCachedPacketsImpl.BUILDER_DIRECTORY_FILE_HEADER = new WeakReference<>(builder);
+            }
+
+            this.cachedDirectoryFileHeader = builder.getBytes(this);;
         }
         return this.cachedDirectoryFileHeader;
     }
