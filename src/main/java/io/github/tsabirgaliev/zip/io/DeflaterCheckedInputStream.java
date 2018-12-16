@@ -1,4 +1,4 @@
-package io.github.tsabirgaliev.zip;
+package io.github.tsabirgaliev.zip.io;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -7,6 +7,7 @@ import java.util.zip.CheckedInputStream;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterInputStream;
 
+import io.github.tsabirgaliev.zip.ByteCountingCRC32;
 import io.github.tsabirgaliev.zip.packets.DataDescriptor;
 
 
