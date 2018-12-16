@@ -51,6 +51,11 @@
             <name>Tair Sabirgaliev</name>
             <email>tair.sabirgaliev@gmail.com</email>
         </developer>
+        <developer>
+            <id>nros</id>
+            <name>nros</name>
+            <email>508093+nros@users.noreply.github.com</email>
+        </developer>
     </developers>
 
     <scm>
