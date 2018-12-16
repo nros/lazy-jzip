@@ -26,11 +26,10 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import io.github.tsabirgaliev.zip.FileEntry;
 import io.github.tsabirgaliev.zip.ZipEntryData;
-import io.github.tsabirgaliev.zip.io.DeflaterDDInputStream;
-import io.github.tsabirgaliev.zip.packets.CentralDirectory;
-import io.github.tsabirgaliev.zip.packets.LocalFileHeader;
+import io.github.tsabirgaliev.zip.ZipEntryDataWithCachedPackets;
+import io.github.tsabirgaliev.zip.ZipEntryDataWithCachedPacketsImpl;
+import io.github.tsabirgaliev.zip.packets.CentralDirectoryBuilder;
 
 /**
  * ZipperInputStream lets you lazily provide file names and data streams
@@ -49,36 +48,39 @@ import io.github.tsabirgaliev.zip.packets.LocalFileHeader;
  */
 public class ZipperInputStream extends SequenceInputStream {
 
-    public ZipperInputStream(final Enumeration<ZipEntryData> enumeration) throws IOException {
-        super(new Enumeration<InputStream>() {
-            List<FileEntry> fileEntries = new ArrayList<>();
+    private final static CentralDirectoryBuilder centralDirectoryBuilder = new CentralDirectoryBuilder();
 
-            boolean cdProcessed = false;
+    public ZipperInputStream(final Enumeration<ZipEntryData> enumeration) throws IOException {
+
+        super(new Enumeration<InputStream>() {
+            final List<ZipEntryDataWithCachedPackets> fileEntries = new ArrayList<>();
+
+            boolean wasCentralDirectoryProvided = false;
 
             @Override
             public boolean hasMoreElements() {
-                return !this.cdProcessed;
+                return !this.wasCentralDirectoryProvided;
             }
 
             @Override
             public InputStream nextElement() {
-                try {
-                    if (enumeration.hasMoreElements()) {
-                        final ZipEntryData zipEntryData = enumeration.nextElement();
-                        final LocalFileHeader lfh = new LocalFileHeader(zipEntryData);
-                        final ByteArrayInputStream lfhIn = new ByteArrayInputStream(lfh.getBytes());
-                        final DeflaterDDInputStream dddIn = new DeflaterDDInputStream(zipEntryData.getStream(), dd -> {
-                            this.fileEntries.add(new FileEntry(lfh, dd));
-                        });
 
-                        return new SequenceInputStream(Collections.enumeration(Arrays.asList(lfhIn, dddIn)));
-                    } else if (!this.cdProcessed) {
-                        this.cdProcessed = true;
-                        final CentralDirectory cd = new CentralDirectory(this.fileEntries);
-                        return new ByteArrayInputStream(cd.getBytes());
-                    }
-                } catch (final IOException e) {
-                    throw new RuntimeException("Error processing zip entry data", e);
+                if (enumeration.hasMoreElements()) {
+
+                    final ZipEntryData zipEntryData = enumeration.nextElement();
+                    final ZipEntryDataWithCachedPackets entry = new ZipEntryDataWithCachedPacketsImpl(zipEntryData);
+                    this.fileEntries.add(entry);
+
+                    return new SequenceInputStream(Collections.enumeration(Arrays.asList(
+                        new ByteArrayInputStream(entry.getLocalFileHeader()),
+                        entry.getStream(),
+                        entry.getDataDescriptorPacketStream()
+                    )));
+
+                } else if (!this.wasCentralDirectoryProvided) {
+
+                    this.wasCentralDirectoryProvided = true;
+                    return new ByteArrayInputStream(ZipperInputStream.centralDirectoryBuilder.getBytes(this.fileEntries));
                 }
 
                 throw new NoSuchElementException("No more elements to produce!");

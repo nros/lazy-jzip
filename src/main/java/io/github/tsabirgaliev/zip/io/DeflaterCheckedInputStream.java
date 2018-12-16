@@ -8,27 +8,38 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterInputStream;
 
 import io.github.tsabirgaliev.zip.ByteCountingCRC32;
-import io.github.tsabirgaliev.zip.packets.DataDescriptor;
+import io.github.tsabirgaliev.zip.packets.DataDescriptorBuilder;
 
 
 /***
  * counts the amount of bytes and checksum while reading from the {@code InputStream}.
  *
- * After consuming all the bytes from the {@link java.io.InputStream}, the optional {@link DataDescriptor}
+ * After consuming all the bytes from the {@link java.io.InputStream}, the optional {@link DataDescriptorBuilder}
  * is created to be added to the ZIP stream after the compressed entry.
  *
  * @author Tair Sabirgaliev <tair.sabirgaliev@gmail.com>
  * @author nros <508093+nros@users.noreply.github.com>
  */
 public class DeflaterCheckedInputStream extends FilterInputStream {
-    long compressedSize = 0;
-    ByteCountingCRC32 checksum = new ByteCountingCRC32();
 
-    DeflaterCheckedInputStream(final InputStream in) {
+    private long compressedSize;
+    private final ByteCountingCRC32 checksum;
+
+    public DeflaterCheckedInputStream(final InputStream rawDataStream, final boolean useCompression) {
         super(null);
-        final CheckedInputStream checkedIn = new CheckedInputStream(in, this.checksum);
-        final DeflaterInputStream deflateIn = new DeflaterInputStream(checkedIn, new Deflater(Deflater.DEFAULT_COMPRESSION, true));
-        this.in = deflateIn;
+        this.checksum = new ByteCountingCRC32();
+        this.compressedSize = 0;
+
+        final CheckedInputStream checkedIn = new CheckedInputStream(rawDataStream, this.checksum);
+
+        if (useCompression) {
+            final DeflaterInputStream deflateIn = new DeflaterInputStream(checkedIn, new Deflater(Deflater.DEFAULT_COMPRESSION, true));
+            this.in = deflateIn;
+
+        } else {
+            // do not compress
+            this.in = checkedIn;
+        }
     }
 
     @Override
@@ -61,7 +72,16 @@ public class DeflaterCheckedInputStream extends FilterInputStream {
         return c;
     }
 
-    public DataDescriptor getDataDescriptor() {
-        return new DataDescriptor(this.checksum.getValue(), this.compressedSize, this.checksum.getByteCounter());
+
+    public long getCrc() {
+        return this.checksum.getValue();
+    }
+
+    public long getCompressedSize() {
+        return this.compressedSize;
+    }
+
+    public long getSize() {
+        return this.checksum.getByteCounter();
     }
 }
