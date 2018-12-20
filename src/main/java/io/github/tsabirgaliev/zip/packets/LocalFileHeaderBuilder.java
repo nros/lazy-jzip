@@ -3,9 +3,9 @@ package io.github.tsabirgaliev.zip.packets;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.zip.ZipEntry;
 
 import io.github.tsabirgaliev.zip.ZipEntryDataWithCachedPackets;
+import io.github.tsabirgaliev.zip.ZipEntry;
 
 /***
  * creates the bytes of the local file header packet, which prepends the compressed data of the entry.
@@ -58,10 +58,10 @@ public class LocalFileHeaderBuilder extends BaseZipPacketBuilder implements ZipE
             baos.write(LocalFileHeaderBuilder.PACKET_VERSION);
             baos.write(this.convertLongToUInt16(LocalFileHeaderBuilder.PACKET_FLAGS));
 
-            if (entryData.getMethod() == ZipEntry.STORED) {
+            if (entryData.getMethod() == java.util.zip.ZipEntry.STORED) {
                 baos.write(this.convertLongToUInt16(LocalFileHeaderBuilder.COMPRESSION_METHOD_STORED));
 
-            } else if (entryData.getMethod() == ZipEntry.DEFLATED) {
+            } else if (entryData.getMethod() == java.util.zip.ZipEntry.DEFLATED) {
                 baos.write(this.convertLongToUInt16(LocalFileHeaderBuilder.COMPRESSION_METHOD_DEFLATE));
 
             } else {

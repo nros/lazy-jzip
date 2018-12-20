@@ -1,7 +1,6 @@
 package io.github.tsabirgaliev.zip;
 
 import java.io.InputStream;
-import java.util.zip.ZipEntry;
 
 /***
  * provide information about the file to be zipped by this package.
@@ -21,28 +20,14 @@ import java.util.zip.ZipEntry;
 public interface ZipEntryData {
 
     /***
-     * returns the path to the file to be added to the ZIP.
-     *
-     * Either this is an absolute path or relative to the current working directory. This package will not take care
-     * of setting a working directory but use the current application settings.
-     *
-     * If {@code null} is returned, then ZIP entry information must be provided by {@link #getZipEntry()}
+     * returns the path of the entry within the ZIP file, which should be absolute from the root of the ZIP's directory
      */
     public String getPath();
 
+
     /***
-     * rather than opening the file directly, this input stream is used to read the file bytes.
+     * provide an {@code InputStream} to read the uncompressed bytes from.
      */
     public InputStream getStream();
-
-
-    /***
-     * (optionally) provide more detailed information about the ZIP entry.
-     * In case {@code null} is returned, such information is created based on the file read from the path fetched from
-     * {@link #getPath()}
-     *
-     * @return {@code null} or detailed information about the ZIP entry.
-     */
-    public ZipEntry getZipEntry();
 }
 
