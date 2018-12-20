@@ -15,6 +15,7 @@ import io.github.tsabirgaliev.zip.ZipEntryDataWithCachedPackets;
  */
 public class LocalFileHeaderBuilder extends BaseZipPacketBuilder implements ZipEntryPacketBuilder {
 
+    public final static int     COMPRESSION_METHOD_STORED = 0;  // no compression
     public final static int     COMPRESSION_METHOD_DEFLATE = 8; // DEFLATE
 
 
@@ -57,7 +58,17 @@ public class LocalFileHeaderBuilder extends BaseZipPacketBuilder implements ZipE
             baos.write(LocalFileHeaderBuilder.PACKET_VERSION);
             baos.write(this.convertLongToUInt16(LocalFileHeaderBuilder.PACKET_FLAGS));
 
-            baos.write(this.convertLongToUInt16(LocalFileHeaderBuilder.COMPRESSION_METHOD_DEFLATE));
+            if (entryData.getMethod() == ZipEntry.STORED) {
+                baos.write(this.convertLongToUInt16(LocalFileHeaderBuilder.COMPRESSION_METHOD_STORED));
+
+            } else if (entryData.getMethod() == ZipEntry.DEFLATED) {
+                baos.write(this.convertLongToUInt16(LocalFileHeaderBuilder.COMPRESSION_METHOD_DEFLATE));
+
+            } else {
+                throw new IllegalArgumentException(
+                    "zip entry data has set an unsupported compression method: " + entryData.getMethod()
+                );
+            }
 
             baos.write(this.convertFileTimeToZipTime(entryData.getLastModifiedTime()));
             baos.write(this.convertFileTimeToZipDate(entryData.getLastModifiedTime()));
