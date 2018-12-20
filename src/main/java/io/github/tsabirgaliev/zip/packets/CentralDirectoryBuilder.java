@@ -4,8 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import io.github.tsabirgaliev.zip.ZipEntryDataWithCachedPackets;
-
 
 /***
  * this helps building the central directory of the ZIP archive, which every archive contains.
@@ -19,7 +17,7 @@ import io.github.tsabirgaliev.zip.ZipEntryDataWithCachedPackets;
  */
 public class CentralDirectoryBuilder extends BaseZipPacketBuilder {
 
-    public byte[] getBytes(final List<ZipEntryDataWithCachedPackets> entries) {
+    public byte[] getBytes(final List<ProcessedZipEntry> entries) {
 
         try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 
@@ -27,7 +25,7 @@ public class CentralDirectoryBuilder extends BaseZipPacketBuilder {
             long directorySize = 0;
 
 
-            for (final ZipEntryDataWithCachedPackets zipEntry : entries) {
+            for (final ProcessedZipEntry zipEntry : entries) {
 
                 final byte[] directoryFileEntry = zipEntry.getDirectoryFileHeader();
                 final byte[] dataDescrptor = zipEntry.getDataDescriptor();

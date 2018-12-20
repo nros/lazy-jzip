@@ -4,8 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
 
-import io.github.tsabirgaliev.zip.ZipEntryDataWithCachedPackets;
-
 /***
  * creates the bytes of the data descriptor packet, which is used to hold some size information about an entry.
  *
@@ -25,7 +23,7 @@ public class DataDescriptorBuilder extends BaseZipPacketBuilder implements ZipEn
     private static final long PACKET_SIGNATURE = 0x08074b50;
 
     @Override
-    public byte[] getBytes(final ZipEntryDataWithCachedPackets zipEntry) {
+    public byte[] getBytes(final ProcessedZipEntry zipEntry) {
 
         if (zipEntry == null) {
             throw new IllegalArgumentException("zip entry data parameter is null");

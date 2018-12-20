@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import io.github.tsabirgaliev.zip.ZipEntryDataWithCachedPackets;
 import io.github.tsabirgaliev.zip.ZipEntry;
 
 /***
@@ -32,7 +31,7 @@ public class LocalFileHeaderBuilder extends BaseZipPacketBuilder implements ZipE
 
 
     @Override
-    public byte[] getBytes(final ZipEntryDataWithCachedPackets zipEntry) {
+    public byte[] getBytes(final ProcessedZipEntry zipEntry) {
 
         if (zipEntry == null) {
             throw new IllegalArgumentException("zip entry data parameter is null");

@@ -1,7 +1,5 @@
 package io.github.tsabirgaliev.zip.packets;
 
-import io.github.tsabirgaliev.zip.ZipEntryDataWithCachedPackets;
-
 /***
  * implementing classes create various ZIP packets for entries as the ZIP file is organized in packets.
  *
@@ -13,5 +11,5 @@ public interface ZipEntryPacketBuilder {
      * create the bytes of this packet for the current ZIP entry.
      * @return the bytes for this packet or {@code null}
      */
-    public byte[] getBytes(final ZipEntryDataWithCachedPackets zipEntry);
+    public byte[] getBytes(final ProcessedZipEntry zipEntry);
 }

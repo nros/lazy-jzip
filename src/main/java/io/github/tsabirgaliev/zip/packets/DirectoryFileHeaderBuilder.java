@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 
-import io.github.tsabirgaliev.zip.ZipEntryDataWithCachedPackets;
-
 /***
  * creates the bytes of the file header in the central directory, which contains information about the compressed bytes
  *
@@ -24,7 +22,7 @@ public class DirectoryFileHeaderBuilder extends BaseZipPacketBuilder implements 
 
 
     @Override
-    public byte[] getBytes(final ZipEntryDataWithCachedPackets zipEntry) {
+    public byte[] getBytes(final ProcessedZipEntry zipEntry) {
 
         if (zipEntry == null) {
             throw new IllegalArgumentException("zip entry data parameter is null");

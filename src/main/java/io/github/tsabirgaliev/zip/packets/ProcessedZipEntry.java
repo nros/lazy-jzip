@@ -1,20 +1,25 @@
-package io.github.tsabirgaliev.zip;
+package io.github.tsabirgaliev.zip.packets;
 
 import java.io.InputStream;
 
+import io.github.tsabirgaliev.zip.ZipEntry;
+
 /***
- * provides access to the ZIP packets that have been created for this ZIP entry, with the except to the data bytes.
+ * While processing a ZIP entry, various ZIP data blocks (packets) are created, which are kept for later user.
  *
- * During the processing of ZIP entries, various information packets are created for each entry. Such packets might
- * be referred to in later steps, so all the packets are cached in this entity, until the ZIP file has been
- * created.
+ * This instance provides access to these ZIP packets, with the except to the data bytes.
+ * The created data packets might be referred to in later steps, so all the packets are cached in this entity,
+ * until the ZIP file has been created.
  *
  * Each of these packets are created on the fly and cached internally for later re-use.
  *
  * @author nros <508093+nros@users.noreply.github.com>
  * @see https://users.cs.jmu.edu/buchhofp/forensics/formats/pkzip.html
  */
-public interface ZipEntryDataWithCachedPackets extends ZipEntryData {
+public interface ProcessedZipEntry {
+
+
+    public ZipEntry getZipEntry();
 
     /***
      * returns the bytes of the optional data descriptor packet as created by
@@ -48,6 +53,6 @@ public interface ZipEntryDataWithCachedPackets extends ZipEntryData {
     /***
      * sets the offset of the local file header within the ZIP file.
      */
-    public ZipEntryDataWithCachedPackets setLocalFileHeaderOffset(final long localFileHeaderOffset);
+    public ProcessedZipEntry setLocalFileHeaderOffset(final long localFileHeaderOffset);
 }
 
