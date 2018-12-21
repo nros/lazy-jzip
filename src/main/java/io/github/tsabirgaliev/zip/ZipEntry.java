@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.function.Consumer;
 import java.util.zip.Deflater;
 
 import io.github.tsabirgaliev.zip.io.DeflaterCheckedInputStream;
@@ -32,6 +33,7 @@ public class ZipEntry extends java.util.zip.ZipEntry {
     private InputStream inStream;
     private InputStream compressedDataStream;
     private File file;
+    private boolean isDeleteFileOnFullyRead = false;
 
 
     public ZipEntry(final String entryPathInZIP) {
@@ -120,15 +122,46 @@ public class ZipEntry extends java.util.zip.ZipEntry {
      * Using an {@code InputStream} has precedence over using a file.
 
      * @param fileToZip - the file to add to the ZIP
+     * @param deleteFileOnFullyRead - if set to {@code true}, the file is deleted as soon as the created input stream
+     *     is closed. Use with care and set only if you delegate the clean-up of the temporary file to this class.
      * @throws IllegalArgumentException in case an {@code InputStream} has already been set with
      *     {@link #setInputStream(InputStream)}
      */
-    public ZipEntry setFile(final File fileToZip) {
+    public ZipEntry setFile(final File fileToZip, final boolean deleteFileOnFullyRead) {
         if (this.getInputStream() != null) {
             throw new IllegalArgumentException("zip entry already has an input stream set as source of data");
         }
         this.file = fileToZip;
+        this.isDeleteFileOnFullyRead = deleteFileOnFullyRead;
         return this;
+    }
+
+
+    /***
+     * use a file instead of an {@code InputStream} as source for the data to add to the ZIP archive.
+     *
+     * Using an {@code InputStream} has precedence over using a file.
+
+     * @param fileToZip - the file to add to the ZIP. The file is not deleted when reading finishes.
+     * @throws IllegalArgumentException in case an {@code InputStream} has already been set with
+     *     {@link #setInputStream(InputStream)}
+     */
+    public ZipEntry setFile(final File fileToZip) {
+        return this.setFile(fileToZip, false);
+    }
+
+
+    /***
+     * use a file instead of an {@code InputStream} as source for the data to add to the ZIP archive.
+     *
+     * Using an {@code InputStream} has precedence over using a file.
+
+     * @param fileToZip - the file to add to the ZIP. The file is deleted when reading its byte has finished.
+     * @throws IllegalArgumentException in case an {@code InputStream} has already been set with
+     *     {@link #setInputStream(InputStream)}
+     */
+    public ZipEntry setTemporaryFile(final File fileToZip) {
+        return this.setFile(fileToZip, true);
     }
 
 
@@ -140,6 +173,17 @@ public class ZipEntry extends java.util.zip.ZipEntry {
      */
     public File getFile() {
         return this.file;
+    }
+
+
+    /***
+     * returns the file to use instead of an {@code InputStream} as source for the data.
+     *
+     * Using an {@code InputStream} has precedence over using a file.
+     * @return the file to use as source of data or {@code null} in case no file has been set.
+     */
+    public boolean isFileDeletedOnFullyRead() {
+        return this.isDeleteFileOnFullyRead;
     }
 
 
@@ -159,7 +203,23 @@ public class ZipEntry extends java.util.zip.ZipEntry {
             InputStream inData = this.getInputStream();
             if (inData == null && this.file != null) {
                 try {
-                    this.setInputStream(new FileInputStream(this.file));
+                    if (this.isDeleteFileOnFullyRead) {
+                        final File temporaryFile = this.file;
+                        final ProxyInputStreamWithCloseListener<InputStream> closeableStream =
+                            new ProxyInputStreamWithCloseListener<InputStream>(new FileInputStream(temporaryFile));
+
+                        closeableStream.addCloseListener(new Consumer<InputStream>() {
+                            @Override
+                            public void accept(final InputStream t) {
+                                temporaryFile.delete();
+                            }
+                        });
+                        this.setInputStream(closeableStream);
+
+                    } else {
+                        this.setInputStream(new FileInputStream(this.file));
+                    }
+
                     inData = this.getInputStream();
 
                 } catch (final FileNotFoundException e) {
