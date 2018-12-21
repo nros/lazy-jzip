@@ -9,7 +9,7 @@ import java.io.InputStream;
 
 import org.junit.jupiter.api.Test;
 
-public class ProxiedInitInputStream  {
+public class TestProxiedInitInputStream  {
 
 
     @Test

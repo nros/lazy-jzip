@@ -28,15 +28,16 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Test;
 
 import io.github.tsabirgaliev.zip.ZipEntryData;
 
-public class ZipperInputStreamTest {
+public class TestZipperInputStream {
 
-    byte[] file1data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".getBytes();
-    byte[] file2data = "other bytes".getBytes();
+    final byte[] file1data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".getBytes();
+    final byte[] file2data = "other bytes".getBytes();
 
-    ZipEntryData file1 = new ZipEntryData() {
+    final ZipEntryData file1 = new ZipEntryData() {
         @Override
         public String getPath() {
             return "file1";
@@ -44,11 +45,11 @@ public class ZipperInputStreamTest {
 
         @Override
         public InputStream getStream() {
-            return new ByteArrayInputStream(ZipperInputStreamTest.this.file1data);
+            return new ByteArrayInputStream(TestZipperInputStream.this.file1data);
         }
     };
 
-    ZipEntryData file2 = new ZipEntryData() {
+    final ZipEntryData file2 = new ZipEntryData() {
         @Override
         public String getPath() {
             return "folder1/file2";
@@ -56,16 +57,17 @@ public class ZipperInputStreamTest {
 
         @Override
         public InputStream getStream() {
-            return new ByteArrayInputStream(ZipperInputStreamTest.this.file2data);
+            return new ByteArrayInputStream(TestZipperInputStream.this.file2data);
         }
     };
 
-    static Enumeration<ZipEntryData> enumerate (final ZipEntryData... files) {
+    private static Enumeration<ZipEntryData> enumerate (final ZipEntryData... files) {
         return Collections.enumeration(Arrays.asList(files));
     }
 
+    @Test
     public void testJDKCompatibility() throws IOException {
-        final ZipperInputStream lzis = new ZipperInputStream(ZipperInputStreamTest.enumerate(this.file1, this.file2));
+        final ZipperInputStream lzis = new ZipperInputStream(TestZipperInputStream.enumerate(this.file1, this.file2));
 
         final ZipInputStream zis = new ZipInputStream(lzis);
 
@@ -94,8 +96,9 @@ public class ZipperInputStreamTest {
 
     }
 
+    @Test
     public void testFileSystemOutput() throws IOException {
-        final ZipperInputStream lzis = new ZipperInputStream(ZipperInputStreamTest.enumerate(this.file1, this.file2));
+        final ZipperInputStream lzis = new ZipperInputStream(TestZipperInputStream.enumerate(this.file1, this.file2));
 
         Files.copy(lzis, Paths.get("target", "output.zip"), StandardCopyOption.REPLACE_EXISTING);
         lzis.close();
