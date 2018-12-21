@@ -3,7 +3,7 @@ package io.github.tsabirgaliev.zip.io;
 import java.io.InputStream;
 import java.util.function.Supplier;
 
-public class LazyInitInputStream extends ProxyInputStream {
+public class LazyInitInputStream<T extends InputStream> extends ProxyInputStreamWithCloseListener<T> {
 
     private final Supplier<InputStream> supplierOfIn;
 

@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.util.zip.Deflater;
 
 import io.github.tsabirgaliev.zip.io.DeflaterCheckedInputStream;
-import io.github.tsabirgaliev.zip.io.DeflaterDDInputStream;
+import io.github.tsabirgaliev.zip.io.ProxyInputStreamWithCloseListener;
 import io.github.tsabirgaliev.zip.packets.LocalFileHeaderBuilder;
 
 /***
@@ -173,14 +173,13 @@ public class ZipEntry extends java.util.zip.ZipEntry {
                 final DeflaterCheckedInputStream compressedStream =
                     new DeflaterCheckedInputStream(this.inStream, useCompression)
                 ;
-                this.compressedDataStream = new DeflaterDDInputStream(
-                    compressedStream,
-                    (checkedStream) -> {
-                        this.setCrc(checkedStream.getCrc());
-                        this.setCompressedSize(checkedStream.getCompressedSize());
-                        this.setSize(checkedStream.getSize());
-                    }
-                );
+                this.compressedDataStream = new ProxyInputStreamWithCloseListener<DeflaterCheckedInputStream>(
+                    compressedStream
+                ).addCloseListener((checkedStream) -> {
+                    this.setCrc(checkedStream.getCrc());
+                    this.setCompressedSize(checkedStream.getCompressedSize());
+                    this.setSize(checkedStream.getSize());
+                });
 
             } else {
                 throw new RuntimeException("Failed to set input stream");

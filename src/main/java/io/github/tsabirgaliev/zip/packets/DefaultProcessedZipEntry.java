@@ -93,7 +93,7 @@ public class DefaultProcessedZipEntry implements ProcessedZipEntry {
 
     @Override
     public InputStream getDataDescriptorPacketStream() {
-        return new LazyInitInputStream(() -> new ByteArrayInputStream(this.getDataDescriptor()));
+        return new LazyInitInputStream<InputStream>(() -> new ByteArrayInputStream(this.getDataDescriptor()));
     }
 
     @Override

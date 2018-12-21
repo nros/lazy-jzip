@@ -24,7 +24,7 @@ public class TestLazyInitInputStream  {
         final int[] supplierWasCalledCounter = new int[1];
 
         supplierWasCalledCounter[0] = 0;
-        final LazyInitInputStream lazyInputStream = new LazyInitInputStream(() -> {
+        final LazyInitInputStream<InputStream> lazyInputStream = new LazyInitInputStream<InputStream>(() -> {
             supplierWasCalledCounter[0]++;
             return mockedInputStream;
         });
@@ -59,7 +59,7 @@ public class TestLazyInitInputStream  {
 
         @SuppressWarnings("resource")
         final InputStream mockedInputStream = mock(InputStream.class);
-        final LazyInitInputStream lazyInputStream = new LazyInitInputStream(() -> mockedInputStream);
+        final LazyInitInputStream<InputStream> lazyInputStream = new LazyInitInputStream<InputStream>(() -> mockedInputStream);
 
         lazyInputStream.available();
         verify(mockedInputStream).available();
