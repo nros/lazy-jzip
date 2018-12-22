@@ -3,6 +3,16 @@ package io.github.tsabirgaliev.zip.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+
+/**
+ * a proxy input stream that wraps another stream.
+ *
+ * <p>
+ * This proxy class can be used as a base class for descendant classes that implement additional features. Descendant
+ * classes do not need to supply the stream to wrap to the base class' constructor. Instead these may supply it
+ * by overriding {@link #getInputStream()}
+ * </p>
+ */
 public class ProxyInputStream extends InputStream {
 
     private InputStream in = null;
@@ -74,11 +84,29 @@ public class ProxyInputStream extends InputStream {
     }
 
 
+    /**
+     * returns the input stream that is wrapped.
+     * Descendant classes may overwrite this function to supply the wrapped stream at a later state than the
+     * constructor.
+     *
+     * @return the input stream that is being used to delegate all function calls to it.
+     */
     protected InputStream getInputStream() {
         return this.in;
     }
 
 
+    /**
+     * sets a new stream to wrap.
+     *
+     * <p>
+     * a new stream to wrap can only be set if no byte has been read from the previous stream or if the previous
+     * stream is {@code null}. Descendant classes may use this function to store a newly created stream to wrap.
+     * </p>
+     *
+     * @param newStreamToProxy - the new stream to wrap
+     * @return this instance to allow a <a href="https://en.wikipedia.org/wiki/Fluent_interface">fluent interface</a>
+     */
     protected ProxyInputStream setInputStream(final InputStream newStreamToProxy) {
 
         // close previous stream
@@ -95,8 +123,10 @@ public class ProxyInputStream extends InputStream {
     }
 
 
-    /***
+    /**
      * returns the input stream but throws an exception in case no input stream has been set yet.
+     *
+     * @return returns the delegate input stream but checks is validity to not be {@code null}
      * @throws NullPointerException in case no input stream has been set yet.
      */
     protected InputStream getInputStreamChecked() {

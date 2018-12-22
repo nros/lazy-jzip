@@ -11,20 +11,25 @@ import io.github.tsabirgaliev.zip.ByteCountingCRC32;
 import io.github.tsabirgaliev.zip.packets.DataDescriptorBuilder;
 
 
-/***
+/**
  * counts the amount of bytes and checksum while reading from the {@code InputStream}.
  *
+ * <p>
  * After consuming all the bytes from the {@link java.io.InputStream}, the optional {@link DataDescriptorBuilder}
  * is created to be added to the ZIP stream after the compressed entry.
- *
- * @author Tair Sabirgaliev <tair.sabirgaliev@gmail.com>
- * @author nros <508093+nros@users.noreply.github.com>
+ * </p>
  */
 public class DeflaterCheckedInputStream extends FilterInputStream {
 
     private long compressedSize;
     private final ByteCountingCRC32 checksum;
 
+    /**
+     * wraps the raw data stream with a deflater stream, recording the sizes and CRC of the stream while reading.
+     *
+     * @param rawDataStream - the stream to wrap with a compressing filter
+     * @param useCompression - if set to {@code true}, then compression is used, and none otherwise
+     */
     public DeflaterCheckedInputStream(final InputStream rawDataStream, final boolean useCompression) {
         super(null);
         this.checksum = new ByteCountingCRC32();

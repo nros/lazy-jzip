@@ -5,14 +5,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 
-/***
- * creates the bytes of the file header in the central directory, which contains information about the compressed bytes
+/**
+ * creates the bytes of the file header in the central directory, which contains information about the data bytes.
  *
+ * <p>
  * Most important, it contains the offset from the start of the file where the local file header is located. This is
  * vital to locate the compressed data.
- *
- * @author Tair Sabirgaliev <tair.sabirgaliev@gmail.com>
- * @author nros <508093+nros@users.noreply.github.com>
+ * </p>
  */
 public class DirectoryFileHeaderBuilder extends BaseZipPacketBuilder implements ZipEntryPacketBuilder {
 

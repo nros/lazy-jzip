@@ -3,6 +3,9 @@ package io.github.tsabirgaliev.zip.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * wraps another input stream and counts all bytes that are read or skipped from the wrapped stream.
+ */
 public class CountingInputStream extends ProxyInputStream {
 
     private long bytesReadCounter = 0;
@@ -42,6 +45,9 @@ public class CountingInputStream extends ProxyInputStream {
         return bytesRead;
     }
 
+    /**
+     * @return return the bytes that have been read so far.
+     */
     public long getByteCount() {
         return this.bytesReadCounter;
     }

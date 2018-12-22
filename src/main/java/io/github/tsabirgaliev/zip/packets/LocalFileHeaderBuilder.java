@@ -6,11 +6,8 @@ import java.nio.charset.StandardCharsets;
 
 import io.github.tsabirgaliev.zip.ZipEntry;
 
-/***
+/**
  * creates the bytes of the local file header packet, which prepends the compressed data of the entry.
- *
- * @author Tair Sabirgaliev <tair.sabirgaliev@gmail.com>
- * @author nros <508093+nros@users.noreply.github.com>
  */
 public class LocalFileHeaderBuilder extends BaseZipPacketBuilder implements ZipEntryPacketBuilder {
 

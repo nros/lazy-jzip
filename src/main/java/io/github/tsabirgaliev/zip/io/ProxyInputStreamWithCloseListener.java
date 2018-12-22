@@ -6,11 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-/***
+/**
  * a proxy input stream to create an event on closing the stream and call some handlers, waiting for notification.
- *
- * @author nros <508093+nros@users.noreply.github.com>
- * @param <T>
  */
 public class ProxyInputStreamWithCloseListener<T extends InputStream> extends ProxyInputStream
     implements StreamWithCloseListener<T>
