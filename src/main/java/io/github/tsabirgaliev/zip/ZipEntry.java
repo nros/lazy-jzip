@@ -214,13 +214,11 @@ public class ZipEntry extends java.util.zip.ZipEntry {
                                 temporaryFile.delete();
                             }
                         });
-                        this.setInputStream(closeableStream);
+                        inData = closeableStream;
 
                     } else {
-                        this.setInputStream(new FileInputStream(this.file));
+                        inData = new FileInputStream(this.file);
                     }
-
-                    inData = this.getInputStream();
 
                 } catch (final FileNotFoundException e) {
                     throw new RuntimeException("failed to open file: " + this.file, e);
@@ -231,7 +229,7 @@ public class ZipEntry extends java.util.zip.ZipEntry {
                 final boolean useCompression = this.getMethod() == LocalFileHeaderBuilder.COMPRESSION_METHOD_DEFLATE;
 
                 final DeflaterCheckedInputStream compressedStream =
-                    new DeflaterCheckedInputStream(this.inStream, useCompression)
+                    new DeflaterCheckedInputStream(inData, useCompression)
                 ;
                 this.compressedDataStream = new ProxyInputStreamWithCloseListener<DeflaterCheckedInputStream>(
                     compressedStream
@@ -242,7 +240,7 @@ public class ZipEntry extends java.util.zip.ZipEntry {
                 });
 
             } else {
-                throw new RuntimeException("Failed to set input stream");
+                throw new RuntimeException("No data is available for this zip entry");
             }
 
         }
@@ -264,6 +262,29 @@ public class ZipEntry extends java.util.zip.ZipEntry {
      */
     public ZipEntry setInputStream(final InputStream newInDataStream) {
 
+        if (this.getFile() != null) {
+            throw new IllegalArgumentException("zip entry already has a file set as source of data");
+        }
+
+        return this.setInputStreamAndClosePrevious(newInDataStream);
+    }
+
+
+    /***
+     * returns the raw, uncompressed input stream that is available or {@code null} if a file is used as data.
+     */
+    public InputStream getInputStream() {
+        return this.inStream;
+    }
+
+
+    /***
+     * rather than reading the data from a file, use that {@code InputStream} instead to read uncompressed bytes from.
+     *
+     * The provided {@code InputStream} has higher precedence than a provided file.
+     */
+    private ZipEntry setInputStreamAndClosePrevious(final InputStream newInDataStream) {
+
         final InputStream oldInStream = this.inStream;
         this.inStream = newInDataStream;
         if (oldInStream != null) {
@@ -275,13 +296,5 @@ public class ZipEntry extends java.util.zip.ZipEntry {
         }
 
         return this;
-    }
-
-
-    /***
-     * returns the raw, uncompressed input stream that is available or {@code null} if a file is used as data.
-     */
-    public InputStream getInputStream() {
-        return this.inStream;
     }
 }
