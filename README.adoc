@@ -1,3 +1,10 @@
+= Lazy Java Zipper (lazy-jzip)
+
+https://travis-ci.com/nros/lazy-jzip[image:https://travis-ci.com/nros/lazy-jzip.svg?branch=master[Build Status]]
+https://coveralls.io/github/nros/lazy-jzip?branch=master[image:https://coveralls.io/repos/github/nros/lazy-jzip/badge.svg?branch=master[Coverage Status]]
+http://www.apache.org/licenses/LICENSE-2.0[image:https://img.shields.io/github/license/tsabirgaliev/zip.svg[Apache 2.0]]
+
+
 == Motivation
 
 The Java JDK includes various means of creating/consuming compressed files.
