@@ -10,6 +10,11 @@ public class CountingInputStream extends ProxyInputStream {
 
     private long bytesReadCounter = 0;
 
+    /**
+     * creates a new wrapper around a delegate in order to count all bytes read from the delegate.
+     *
+     * @param inputStreamToProxy - the delegate to wrap.
+     */
     public CountingInputStream(final InputStream inputStreamToProxy) {
         super(inputStreamToProxy);
     }
@@ -46,7 +51,9 @@ public class CountingInputStream extends ProxyInputStream {
     }
 
     /**
-     * @return return the bytes that have been read so far.
+     * returns the amount of bytes that have been read from the delegate so far.
+     *
+     * @return return the bytes that have been read so far, can not be below {@code 0}
      */
     public long getByteCount() {
         return this.bytesReadCounter;

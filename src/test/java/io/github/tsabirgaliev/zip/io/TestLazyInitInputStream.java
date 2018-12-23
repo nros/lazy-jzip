@@ -9,8 +9,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("Test LazyInitInputStream")
 public class TestLazyInitInputStream  {
 
 
@@ -59,7 +61,8 @@ public class TestLazyInitInputStream  {
 
         @SuppressWarnings("resource")
         final InputStream mockedInputStream = mock(InputStream.class);
-        final LazyInitInputStream<InputStream> lazyInputStream = new LazyInitInputStream<InputStream>(() -> mockedInputStream);
+        final LazyInitInputStream<InputStream> lazyInputStream =
+            new LazyInitInputStream<InputStream>(() -> mockedInputStream);
 
         lazyInputStream.available();
         verify(mockedInputStream).available();
@@ -67,8 +70,9 @@ public class TestLazyInitInputStream  {
         lazyInputStream.read();
         verify(mockedInputStream).read();
 
-        lazyInputStream.mark(10);
-        verify(mockedInputStream, atLeastOnce()).mark(10);
+        final int numericParameter = 10;
+        lazyInputStream.mark(numericParameter);
+        verify(mockedInputStream, atLeastOnce()).mark(numericParameter);
 
         lazyInputStream.markSupported();
         verify(mockedInputStream, atLeastOnce()).markSupported();
@@ -76,15 +80,17 @@ public class TestLazyInitInputStream  {
         lazyInputStream.reset();
         verify(mockedInputStream, atLeastOnce()).reset();
 
-        lazyInputStream.skip(97);
-        verify(mockedInputStream, atLeastOnce()).skip(97);
+        final int bytesToSkip = 97;
+        lazyInputStream.skip(bytesToSkip);
+        verify(mockedInputStream, atLeastOnce()).skip(bytesToSkip);
 
-        final byte[] buffer = new byte[10];
+        final int bufferSize = 10;
+        final byte[] buffer = new byte[bufferSize];
         lazyInputStream.read(buffer);
         verify(mockedInputStream, atLeastOnce()).read(buffer);
 
-        lazyInputStream.read(buffer, 2, 5);
-        verify(mockedInputStream, atLeastOnce()).read(buffer, 2, 5);
+        lazyInputStream.read(buffer, 2, bufferSize / 2);
+        verify(mockedInputStream, atLeastOnce()).read(buffer, 2, bufferSize / 2);
 
         lazyInputStream.close();
         verify(mockedInputStream, atLeastOnce()).close();

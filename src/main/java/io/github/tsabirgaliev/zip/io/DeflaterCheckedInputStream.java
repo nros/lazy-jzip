@@ -7,7 +7,7 @@ import java.util.zip.CheckedInputStream;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterInputStream;
 
-import io.github.tsabirgaliev.zip.ByteCountingCRC32;
+import io.github.tsabirgaliev.zip.ByteCountingCrc32;
 import io.github.tsabirgaliev.zip.packets.DataDescriptorBuilder;
 
 
@@ -22,7 +22,7 @@ import io.github.tsabirgaliev.zip.packets.DataDescriptorBuilder;
 public class DeflaterCheckedInputStream extends FilterInputStream {
 
     private long compressedSize;
-    private final ByteCountingCRC32 checksum;
+    private final ByteCountingCrc32 checksum;
 
     /**
      * wraps the raw data stream with a deflater stream, recording the sizes and CRC of the stream while reading.
@@ -32,13 +32,14 @@ public class DeflaterCheckedInputStream extends FilterInputStream {
      */
     public DeflaterCheckedInputStream(final InputStream rawDataStream, final boolean useCompression) {
         super(null);
-        this.checksum = new ByteCountingCRC32();
+        this.checksum = new ByteCountingCrc32();
         this.compressedSize = 0;
 
         final CheckedInputStream checkedIn = new CheckedInputStream(rawDataStream, this.checksum);
 
         if (useCompression) {
-            final DeflaterInputStream deflateIn = new DeflaterInputStream(checkedIn, new Deflater(Deflater.DEFAULT_COMPRESSION, true));
+            final DeflaterInputStream deflateIn =
+                new DeflaterInputStream(checkedIn, new Deflater(Deflater.DEFAULT_COMPRESSION, true));
             this.in = deflateIn;
 
         } else {
@@ -49,32 +50,32 @@ public class DeflaterCheckedInputStream extends FilterInputStream {
 
     @Override
     public int read() throws IOException {
-        final int b = super.read();
-        if (b != -1) {
+        final int byteRead = super.read();
+        if (byteRead != -1) {
             this.compressedSize++;
         }
 
-        return b;
+        return byteRead;
     }
 
     @Override
-    public int read(final byte[] b) throws IOException {
-        final int c = super.read(b);
-        if (c != -1) {
-            this.compressedSize += c;
+    public int read(final byte[] byteBuffer) throws IOException {
+        final int amountOfBytesRead = super.read(byteBuffer);
+        if (amountOfBytesRead != -1) {
+            this.compressedSize += amountOfBytesRead;
         }
 
-        return c;
+        return amountOfBytesRead;
     }
 
     @Override
-    public int read(final byte[] b, final int off, final int len) throws IOException {
-        final int c = super.read(b, off, len);
-        if (c != -1) {
-            this.compressedSize += c;
+    public int read(final byte[] byteBuffer, final int offset, final int length) throws IOException {
+        final int amountOfBytesRead = super.read(byteBuffer, offset, length);
+        if (amountOfBytesRead != -1) {
+            this.compressedSize += amountOfBytesRead;
         }
 
-        return c;
+        return amountOfBytesRead;
     }
 
 

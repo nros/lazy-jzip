@@ -76,6 +76,10 @@ public class ZipperOutputStream extends OutputStream {
 
     private InputStream createdInputStream = null;
 
+
+    /**
+     * creates a new instance, which will start to collect entries to the ZIP file right-away.
+     */
     public ZipperOutputStream() {
         super();
         try {
@@ -188,8 +192,8 @@ public class ZipperOutputStream extends OutputStream {
 
         if (
             entryToAdd != null
-            && entryToAdd.getMethod() != ZipOutputStream.DEFLATED
-            && entryToAdd.getMethod() != ZipOutputStream.STORED
+                && entryToAdd.getMethod() != ZipOutputStream.DEFLATED
+                && entryToAdd.getMethod() != ZipOutputStream.STORED
         ) {
             entryToAdd.setMethod(this.compressionMethod);
         }
@@ -398,32 +402,32 @@ public class ZipperOutputStream extends OutputStream {
      */
     @SuppressWarnings("resource")
     public OutputStream getEntryStream() {
-        final ZipperOutputStream me = this;
+        final ZipperOutputStream myself = this;
         return new OutputStream() {
 
             @Override
             public void write(final int b) throws IOException {
-                me.write(b);
+                myself.write(b);
             }
 
             @Override
             public void write(final byte[] b) throws IOException {
-                me.write(b);
+                myself.write(b);
             }
 
             @Override
             public void write(final byte[] b, final int off, final int len) throws IOException {
-                me.write(b, off, len);
+                myself.write(b, off, len);
             }
 
             @Override
             public void flush() throws IOException {
-                me.flush();
+                myself.flush();
             }
 
             @Override
             public void close() throws IOException {
-                me.close();
+                myself.close();
             }
         };
     }
@@ -564,33 +568,33 @@ public class ZipperOutputStream extends OutputStream {
     protected Enumeration<InputStream> createEnumerationWrapper() {
 
         @SuppressWarnings("resource")
-        final ZipperOutputStream me = this;
+        final ZipperOutputStream myself = this;
         return new Enumeration<InputStream>() {
 
             private long localHeaderOffset = 0;
 
             @Override
             public boolean hasMoreElements() {
-                return !me.wasCentralDirectoryProvided;
+                return !myself.wasCentralDirectoryProvided;
             }
 
             @SuppressWarnings("resource")
             @Override
             public InputStream nextElement() {
 
-                if (me.entriesToZip.isEmpty() && me.currentEntry != null) {
+                if (myself.entriesToZip.isEmpty() && myself.currentEntry != null) {
                     try {
-                        me.closeEntry();
+                        myself.closeEntry();
                     } catch (final IOException ignore) {
                     }
                 }
 
-                if (!me.entriesToZip.isEmpty()) {
+                if (!myself.entriesToZip.isEmpty()) {
 
-                    final ZipEntry zipEntry = me.entriesToZip.remove(0);
+                    final ZipEntry zipEntry = myself.entriesToZip.remove(0);
                     final ProcessedZipEntry entry = new DefaultProcessedZipEntry(zipEntry);
                     entry.setLocalFileHeaderOffset(this.localHeaderOffset);
-                    me.fileEntries.add(entry);
+                    myself.fileEntries.add(entry);
 
                     final List<InputStream> entryParts = Arrays.asList(
                         new ByteArrayInputStream(entry.getLocalFileHeader()),
@@ -604,10 +608,10 @@ public class ZipperOutputStream extends OutputStream {
                         )
                     ).addCloseListener((countingStream) -> this.localHeaderOffset += countingStream.getByteCount());
 
-                } else if (!me.wasCentralDirectoryProvided) {
+                } else if (!myself.wasCentralDirectoryProvided) {
 
-                    me.wasCentralDirectoryProvided = true;
-                    return new ByteArrayInputStream(new CentralDirectoryBuilder().getBytes(me.fileEntries));
+                    myself.wasCentralDirectoryProvided = true;
+                    return new ByteArrayInputStream(new CentralDirectoryBuilder().getBytes(myself.fileEntries));
                 }
 
                 throw new NoSuchElementException("No more elements to produce!");

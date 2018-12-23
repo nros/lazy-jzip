@@ -47,7 +47,7 @@ public class CentralDirectoryBuilder extends BaseZipPacketBuilder {
             baos.write(new EndOfCentralDirectoryBuilder().getBytes(entries.size(), directorySize, directoryOffset));
             return baos.toByteArray();
 
-        } catch(final IOException ignore) {
+        } catch (final IOException ignore) {
             throw new RuntimeException("failed to create central directory", ignore);
         }
     }

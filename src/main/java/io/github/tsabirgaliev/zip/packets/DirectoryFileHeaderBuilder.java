@@ -16,8 +16,8 @@ import java.util.zip.ZipEntry;
 public class DirectoryFileHeaderBuilder extends BaseZipPacketBuilder implements ZipEntryPacketBuilder {
 
 
-    private final static long PACKET_SIGNATURE      = 0x02014b50;
-    private final static byte[] EXTERNAL_ATTRIBUTES = {0x0, 0x0, (byte)0xa4, (byte)0x81};
+    private static final byte[] EXTERNAL_ATTRIBUTES = {0x0, 0x0, (byte)0xa4, (byte)0x81};
+    private static final long PACKET_SIGNATURE      = 0x02014b50;
 
 
     @Override
@@ -39,8 +39,13 @@ public class DirectoryFileHeaderBuilder extends BaseZipPacketBuilder implements 
             final byte[] fileName = entryData.getName().getBytes(StandardCharsets.UTF_8);
 
             baos.write(this.convertLongToUInt32(DirectoryFileHeaderBuilder.PACKET_SIGNATURE));
-            baos.write(LocalFileHeaderBuilder.PACKET_VERSION); // version made by
-            baos.write(LocalFileHeaderBuilder.PACKET_VERSION); // version needed to extract
+
+            // version made by
+            baos.write(LocalFileHeaderBuilder.PACKET_VERSION);
+
+            // version needed to extract
+            baos.write(LocalFileHeaderBuilder.PACKET_VERSION);
+
             baos.write(this.convertLongToUInt16(LocalFileHeaderBuilder.PACKET_FLAGS));
             baos.write(this.convertLongToUInt16(entryData.getMethod()));
             baos.write(this.convertFileTimeToZipTime(entryData.getLastModifiedTime()));
@@ -54,10 +59,12 @@ public class DirectoryFileHeaderBuilder extends BaseZipPacketBuilder implements 
             baos.write(this.convertLongToUInt16(extraFielData != null ? extraFielData.length : 0));
 
             final String commentString = entryData.getComment();
-            final byte[] comment = commentString != null ? commentString.getBytes(StandardCharsets.UTF_8): null;
+            final byte[] comment = commentString != null ? commentString.getBytes(StandardCharsets.UTF_8) : null;
             baos.write(this.convertLongToUInt16(comment != null ? comment.length : 0));
 
-            baos.write(this.convertLongToUInt16(0)); // only a single ZIP file is supported right now
+            // only a single ZIP file is supported right now
+            baos.write(this.convertLongToUInt16(0));
+
             baos.write(this.convertLongToUInt16(0));
             baos.write(DirectoryFileHeaderBuilder.EXTERNAL_ATTRIBUTES);
 
@@ -67,9 +74,8 @@ public class DirectoryFileHeaderBuilder extends BaseZipPacketBuilder implements 
 
             return baos.toByteArray();
 
-        } catch(final IOException exception) {
+        } catch (final IOException exception) {
             throw new RuntimeException("failed to create central directory entry", exception);
         }
     }
-
 }

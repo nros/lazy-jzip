@@ -11,19 +11,24 @@ import io.github.tsabirgaliev.zip.ZipEntry;
  */
 public class LocalFileHeaderBuilder extends BaseZipPacketBuilder implements ZipEntryPacketBuilder {
 
-    public final static int     COMPRESSION_METHOD_STORED = 0;  // no compression
-    public final static int     COMPRESSION_METHOD_DEFLATE = 8; // DEFLATE
+    public static final int     COMPRESSION_METHOD_STORED = 0;
+    public static final int     COMPRESSION_METHOD_DEFLATE = 8;
 
 
-    public final static long   PACKET_SIGNATURE = 0x04034b50;
-    public final static byte[] PACKET_VERSION    = {20, 0};
-    public final static long   PACKET_FLAGS     = (1 << 3)   // DataDescriptor used
-                                                | (1 << 11); // file_name is UTF-8
+    public static final long    PACKET_SIGNATURE = 0x04034b50;
+    public static final byte[]  PACKET_VERSION    = {20, 0};
 
-    private final static long   UNKOWN_CRC = 0;
-    private final static long   UNKOWN_COMPRESSED_SIZE = 0;
-    private final static long   UNKOWN_UNCOMPRESSED_SIZE = 0;
-    private final static long   NO_EXTRA_FIELD = 0;
+    public static final int     PACKET_FLAG_BIT__DATA_DESCRIPTOR_USED = 3;
+    public static final int     PACKET_FLAG_BIT__FILE_NAME_UTF8 = 11;
+    public static final int     PACKET_FLAGS =
+        1 << LocalFileHeaderBuilder.PACKET_FLAG_BIT__DATA_DESCRIPTOR_USED
+        | 1 << LocalFileHeaderBuilder.PACKET_FLAG_BIT__FILE_NAME_UTF8
+    ;
+
+    private static final long   UNKOWN_CRC = 0;
+    private static final long   UNKOWN_COMPRESSED_SIZE = 0;
+    private static final long   UNKOWN_UNCOMPRESSED_SIZE = 0;
+    private static final long   NO_EXTRA_FIELD = 0;
 
 
 
@@ -80,7 +85,8 @@ public class LocalFileHeaderBuilder extends BaseZipPacketBuilder implements ZipE
             baos.write(fileName);
 
             return baos.toByteArray();
-        } catch(final IOException exception) {
+
+        } catch (final IOException exception) {
             throw new RuntimeException("failed to create local file header of entry", exception);
         }
     }

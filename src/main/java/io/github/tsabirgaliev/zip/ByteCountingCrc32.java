@@ -12,7 +12,7 @@ import java.util.zip.Checksum;
  * central directory entries of a file within the ZIP archive.
  * </p>
  */
-public class ByteCountingCRC32 implements Checksum {
+public class ByteCountingCrc32 implements Checksum {
     private final CRC32 checksum = new CRC32();
     private long counter = 0;
 
@@ -27,7 +27,7 @@ public class ByteCountingCRC32 implements Checksum {
 
         if (
             bytes != null && bytes.length > 0 && length > 0
-            && offset >= 0 && offset < bytes.length
+                && offset >= 0 && offset < bytes.length
         ) {
             this.checksum.update(bytes, offset, Math.min(length, bytes.length - offset));
 

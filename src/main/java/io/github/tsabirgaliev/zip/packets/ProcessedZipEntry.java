@@ -24,6 +24,8 @@ public interface ProcessedZipEntry {
 
 
     /**
+     * return the meta information data instance, releated to this entry.
+     *
      * @return the meta information for the entry, stored in {@code ZipEntry}
      */
     public ZipEntry getZipEntry();

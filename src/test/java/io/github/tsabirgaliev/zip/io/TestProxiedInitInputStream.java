@@ -7,8 +7,10 @@ import static org.mockito.Mockito.verify;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("Test ProxyInputStream")
 public class TestProxiedInitInputStream  {
 
 
@@ -25,8 +27,9 @@ public class TestProxiedInitInputStream  {
         lazyInputStream.read();
         verify(mockedInputStream).read();
 
-        lazyInputStream.mark(10);
-        verify(mockedInputStream, atLeastOnce()).mark(10);
+        final int markerPosition = 10;
+        lazyInputStream.mark(markerPosition);
+        verify(mockedInputStream, atLeastOnce()).mark(markerPosition);
 
         lazyInputStream.markSupported();
         verify(mockedInputStream, atLeastOnce()).markSupported();
@@ -34,15 +37,17 @@ public class TestProxiedInitInputStream  {
         lazyInputStream.reset();
         verify(mockedInputStream, atLeastOnce()).reset();
 
-        lazyInputStream.skip(97);
-        verify(mockedInputStream, atLeastOnce()).skip(97);
+        final int bytesToSkip = 96;
+        lazyInputStream.skip(bytesToSkip);
+        verify(mockedInputStream, atLeastOnce()).skip(bytesToSkip);
 
-        final byte[] buffer = new byte[10];
+        final int bufferSize = 10;
+        final byte[] buffer = new byte[bufferSize];
         lazyInputStream.read(buffer);
         verify(mockedInputStream, atLeastOnce()).read(buffer);
 
-        lazyInputStream.read(buffer, 2, 5);
-        verify(mockedInputStream, atLeastOnce()).read(buffer, 2, 5);
+        lazyInputStream.read(buffer, 2, bufferSize / 2);
+        verify(mockedInputStream, atLeastOnce()).read(buffer, 2, bufferSize / 2);
 
         lazyInputStream.close();
         verify(mockedInputStream, atLeastOnce()).close();

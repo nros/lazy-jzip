@@ -52,10 +52,11 @@ public class DefaultProcessedZipEntry implements ProcessedZipEntry {
     public byte[] getDataDescriptor() {
         if (this.cachedDateDescriptor == null) {
 
-            DataDescriptorBuilder builder = DefaultProcessedZipEntry.BUILDER_DATA_DESCRIPTOR != null ?
-                DefaultProcessedZipEntry.BUILDER_DATA_DESCRIPTOR.get() : null;
+            DataDescriptorBuilder builder = DefaultProcessedZipEntry.BUILDER_DATA_DESCRIPTOR != null
+                ? DefaultProcessedZipEntry.BUILDER_DATA_DESCRIPTOR.get() : null;
+
             if (builder == null) {
-               builder = new DataDescriptorBuilder();
+                builder = new DataDescriptorBuilder();
                 DefaultProcessedZipEntry.BUILDER_DATA_DESCRIPTOR = new WeakReference<>(builder);
             }
             this.cachedDateDescriptor = builder.getBytes(this);
@@ -67,10 +68,11 @@ public class DefaultProcessedZipEntry implements ProcessedZipEntry {
     public byte[] getLocalFileHeader() {
         if (this.cachedLocalFileHeader == null) {
 
-            LocalFileHeaderBuilder builder = DefaultProcessedZipEntry.BUILDER_LOCAL_FILE_HEADER != null ?
-                DefaultProcessedZipEntry.BUILDER_LOCAL_FILE_HEADER.get() : null;
+            LocalFileHeaderBuilder builder = DefaultProcessedZipEntry.BUILDER_LOCAL_FILE_HEADER != null
+                ? DefaultProcessedZipEntry.BUILDER_LOCAL_FILE_HEADER.get() : null;
+
             if (builder == null) {
-               builder = new LocalFileHeaderBuilder();
+                builder = new LocalFileHeaderBuilder();
                 DefaultProcessedZipEntry.BUILDER_LOCAL_FILE_HEADER = new WeakReference<>(builder);
             }
 
@@ -83,14 +85,15 @@ public class DefaultProcessedZipEntry implements ProcessedZipEntry {
     public byte[] getDirectoryFileHeader() {
         if (this.cachedDirectoryFileHeader == null) {
 
-            DirectoryFileHeaderBuilder builder = DefaultProcessedZipEntry.BUILDER_DIRECTORY_FILE_HEADER != null ?
-                DefaultProcessedZipEntry.BUILDER_DIRECTORY_FILE_HEADER.get() : null;
+            DirectoryFileHeaderBuilder builder = DefaultProcessedZipEntry.BUILDER_DIRECTORY_FILE_HEADER != null
+                ? DefaultProcessedZipEntry.BUILDER_DIRECTORY_FILE_HEADER.get() : null;
+
             if (builder == null) {
-               builder = new DirectoryFileHeaderBuilder();
+                builder = new DirectoryFileHeaderBuilder();
                 DefaultProcessedZipEntry.BUILDER_DIRECTORY_FILE_HEADER = new WeakReference<>(builder);
             }
 
-            this.cachedDirectoryFileHeader = builder.getBytes(this);;
+            this.cachedDirectoryFileHeader = builder.getBytes(this);
         }
         return this.cachedDirectoryFileHeader;
     }

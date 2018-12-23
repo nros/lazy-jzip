@@ -40,8 +40,8 @@ public class ZipEntry extends java.util.zip.ZipEntry {
     private boolean isDeleteFileOnFullyRead = false;
 
 
-    public ZipEntry(final String entryPathInZIP) {
-        super(entryPathInZIP);
+    public ZipEntry(final String entryPathInZip) {
+        super(entryPathInZip);
     }
 
 
@@ -234,7 +234,7 @@ public class ZipEntry extends java.util.zip.ZipEntry {
      * </p>
      *
      * @return a stream to compress on-the-fly reading the bytes either from the provided input stream
-     * (see {@link #getInputStream()}) or from the file obtained with {@link #getFile()}.
+     *     (see {@link #getInputStream()}) or from the file obtained with {@link #getFile()}.
      */
     @SuppressWarnings("resource")
     public InputStream getStream() {
@@ -242,28 +242,27 @@ public class ZipEntry extends java.util.zip.ZipEntry {
         if (this.compressedDataStream == null) {
 
             InputStream inData = this.getInputStream();
-            if (inData == null && this.file != null) {
-                try {
-                    if (this.isDeleteFileOnFullyRead) {
-                        final File temporaryFile = this.file;
-                        final ProxyInputStreamWithCloseListener<InputStream> closeableStream =
-                            new ProxyInputStreamWithCloseListener<InputStream>(new FileInputStream(temporaryFile));
+            try {
+                if (inData == null && this.file != null && this.isDeleteFileOnFullyRead) {
 
-                        closeableStream.addCloseListener(new Consumer<InputStream>() {
-                            @Override
-                            public void accept(final InputStream t) {
-                                temporaryFile.delete();
-                            }
-                        });
-                        inData = closeableStream;
+                    final File temporaryFile = this.file;
+                    final ProxyInputStreamWithCloseListener<InputStream> closeableStream =
+                        new ProxyInputStreamWithCloseListener<InputStream>(new FileInputStream(temporaryFile));
 
-                    } else {
-                        inData = new FileInputStream(this.file);
-                    }
+                    closeableStream.addCloseListener(new Consumer<InputStream>() {
+                        @Override
+                        public void accept(final InputStream t) {
+                            temporaryFile.delete();
+                        }
+                    });
+                    inData = closeableStream;
 
-                } catch (final FileNotFoundException e) {
-                    throw new RuntimeException("failed to open file: " + this.file, e);
+                } else if (inData == null && this.file != null) {
+                    inData = new FileInputStream(this.file);
                 }
+
+            } catch (final FileNotFoundException notFoundException) {
+                throw new RuntimeException("failed to open file: " + this.file, notFoundException);
             }
 
             if (inData != null) {

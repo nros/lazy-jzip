@@ -48,7 +48,7 @@ public class DataDescriptorBuilder extends BaseZipPacketBuilder implements ZipEn
 
             return baos.toByteArray();
 
-        } catch(final IOException exception) {
+        } catch (final IOException exception) {
             throw new RuntimeException("failed to create data descriptor of entry", exception);
         }
     }

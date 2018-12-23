@@ -49,7 +49,7 @@ public class EndOfCentralDirectoryBuilder extends BaseZipPacketBuilder {
 
             return baos.toByteArray();
 
-        } catch(final IOException exception) {
+        } catch (final IOException exception) {
             throw new RuntimeException("failed to create end of central directory entry", exception);
         }
     }

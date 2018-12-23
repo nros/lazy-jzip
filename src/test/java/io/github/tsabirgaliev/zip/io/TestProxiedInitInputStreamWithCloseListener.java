@@ -9,8 +9,10 @@ import java.io.InputStream;
 import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("Test ProxyInputStreamWithCloseListener")
 public class TestProxiedInitInputStreamWithCloseListener  {
 
 
@@ -30,7 +32,7 @@ public class TestProxiedInitInputStreamWithCloseListener  {
 
         Assertions.assertTrue(
             consumerWasCalled[0],
-            "close listerner was not called"
+            "close listerner was not called at any time"
         );
     }
 
@@ -59,7 +61,7 @@ public class TestProxiedInitInputStreamWithCloseListener  {
         for (int i = 0; i < listenerCount; i++) {
             Assertions.assertTrue(
                 consumerWasCalled[i],
-                "close listerner " + i + " was not called"
+                "the close listerner " + i + " was not called on close()"
             );
         }
     }
@@ -74,6 +76,7 @@ public class TestProxiedInitInputStreamWithCloseListener  {
             new ProxyInputStreamWithCloseListener<InputStream>(mockedInputStream);
 
         final int listenerCount = 5;
+        final int listenerThrowingException = 3;
         final boolean[] consumerWasCalled = new boolean[listenerCount];
         for (int i = 0; i < listenerCount; i++) {
             final int currentListenerNr = i;
@@ -81,7 +84,7 @@ public class TestProxiedInitInputStreamWithCloseListener  {
             proxyStream.addCloseListener(
                 (Consumer<InputStream>)((inputStream) -> {
                     consumerWasCalled[currentListenerNr] = true;
-                    if (currentListenerNr == 3) {
+                    if (currentListenerNr == listenerThrowingException) {
                         throw new RuntimeException("test exception");
                     }
                 })

@@ -13,19 +13,24 @@ import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("Test ZipEntry")
 public class TestZipEntry {
 
-    public byte[] createTemporaryData() throws IOException {
+    private static final String ZIP_ENTRY_NAME = "/test";
+
+    private byte[] createTemporaryData() throws IOException {
+        final int bufferSize = 2048;
         final Random random = new Random();
-        final byte[] data = new byte[2048];
+        final byte[] data = new byte[bufferSize];
         random.nextBytes(data);
         return data;
     }
 
 
-    public File createTemporaryFileWithData() throws IOException {
+    private File createTemporaryFileWithData() throws IOException {
         final byte[] data = this.createTemporaryData();
 
         final File temporaryFile = File.createTempFile("test", ".bin");
@@ -42,7 +47,7 @@ public class TestZipEntry {
     public void getStream_opensFile() throws IOException {
 
         final File temporaryFile = this.createTemporaryFileWithData();
-        final ZipEntry zipEntry = new ZipEntry("test").setFile(temporaryFile);
+        final ZipEntry zipEntry = new ZipEntry(TestZipEntry.ZIP_ENTRY_NAME).setFile(temporaryFile);
         final InputStream zipIn = zipEntry.getStream();
 
         Assertions.assertNotNull(zipIn, "zip entry does not return a proper stream");
@@ -50,7 +55,7 @@ public class TestZipEntry {
         Assertions.assertArrayEquals(
             IOUtils.toByteArray(zipIn),
             IOUtils.toByteArray(temporaryFile.toURI()),
-            "some different, unknown data was read"
+            "Hm, different data was read from the ZIP"
         );
         zipIn.close();
 
@@ -63,10 +68,10 @@ public class TestZipEntry {
     public void getStream_opensFileAndDeletesFile() throws IOException {
 
         final File temporaryFile = this.createTemporaryFileWithData();
-        final ZipEntry zipEntry = new ZipEntry("test").setFile(temporaryFile, true);
+        final ZipEntry zipEntry = new ZipEntry(TestZipEntry.ZIP_ENTRY_NAME).setFile(temporaryFile, true);
         final InputStream zipIn = zipEntry.getStream();
 
-        Assertions.assertNotNull(zipIn, "zip entry does not return a proper stream");
+        Assertions.assertNotNull(zipIn, "zip entry stram is invalid (null)");
 
         Assertions.assertTrue(
             zipEntry.isFileDeletedOnFullyRead(),
@@ -89,24 +94,24 @@ public class TestZipEntry {
     public void getStream_opensTemporaryFileAndDeletesFile() throws IOException {
 
         final File temporaryFile = this.createTemporaryFileWithData();
-        final ZipEntry zipEntry = new ZipEntry("test").setTemporaryFile(temporaryFile);
+        final ZipEntry zipEntry = new ZipEntry(TestZipEntry.ZIP_ENTRY_NAME).setTemporaryFile(temporaryFile);
         final InputStream zipIn = zipEntry.getStream();
 
-        Assertions.assertNotNull(zipIn, "zip entry does not return a proper stream");
+        Assertions.assertNotNull(zipIn, "zip entry stream is invalid with temporary file");
 
         Assertions.assertTrue(
             zipEntry.isFileDeletedOnFullyRead(),
-            "marker to delete the temporary file is not being set properly"
+            "failed to set marker to delete the temporary file later"
         );
 
         Assertions.assertArrayEquals(
             IOUtils.toByteArray(temporaryFile.toURI()),
             IOUtils.toByteArray(zipIn),
-            "some different, unknown data was read"
+            "temporary data has not been stored in the ZIP properly"
         );
         zipIn.close();
 
-        Assertions.assertTrue(!temporaryFile.exists(), "the temporary file has not been deleted");
+        Assertions.assertTrue(!temporaryFile.exists(), "the temporary file has not been deleted, although expected");
         temporaryFile.delete();
     }
 
@@ -115,14 +120,14 @@ public class TestZipEntry {
     public void getInputStream() throws IOException {
 
         final File temporaryFile = this.createTemporaryFileWithData();
-        final ZipEntry zipEntry = new ZipEntry("test").setTemporaryFile(temporaryFile);
+        final ZipEntry zipEntry = new ZipEntry(TestZipEntry.ZIP_ENTRY_NAME).setTemporaryFile(temporaryFile);
         try (final InputStream zipIn = zipEntry.getInputStream()) {
-            Assertions.assertNull(zipIn, "zip entry uses an input stream but has a file being set");
+            Assertions.assertNull(zipIn, "zip entry uses an input stream but has a temporary file being set");
         }
 
         Assertions.assertTrue(
             zipEntry.getFile() == temporaryFile,
-            "zip entry does not return same file as passed-in"
+            "zip entry does not return same file as passed-in!"
         );
         temporaryFile.delete();
     }
@@ -132,20 +137,20 @@ public class TestZipEntry {
     public void setInputStream_AfterFile() throws IOException {
 
         final File temporaryFile = this.createTemporaryFileWithData();
-        final ZipEntry zipEntry = new ZipEntry("test").setTemporaryFile(temporaryFile);
+        final ZipEntry zipEntry = new ZipEntry(TestZipEntry.ZIP_ENTRY_NAME).setTemporaryFile(temporaryFile);
         final byte[] otherTestData = this.createTemporaryData();
 
         try (final InputStream zipIn = zipEntry.getInputStream()) {
-            Assertions.assertNull(zipIn, "zip entry uses an input stream but has a file being set");
+            Assertions.assertNull(zipIn, "zip entry uses an input stream but already has a file attached");
         }
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             zipEntry.setInputStream(new ByteArrayInputStream(otherTestData));
-        }, "setting a file when an InputStream is used does not fail, as it would have been expected.");
+        }, "setting a file when an InputStream is used does not fail, as it would have been expected!");
 
 
         try (final InputStream zipIn = zipEntry.getInputStream()) {
-            Assertions.assertNull(zipIn, "zip entry does use an input stream although a file is used");
+            Assertions.assertNull(zipIn, "zip entry does use an input stream although a file has being set");
         }
 
         Assertions.assertTrue(
@@ -177,11 +182,11 @@ public class TestZipEntry {
 
         final File temporaryFile = this.createTemporaryFileWithData();
         final byte[] otherTestData = this.createTemporaryData();
-        final ZipEntry zipEntry = new ZipEntry("test");
+        final ZipEntry zipEntry = new ZipEntry(TestZipEntry.ZIP_ENTRY_NAME);
 
 
         try (final InputStream zipIn = zipEntry.getInputStream()) {
-            Assertions.assertNull(zipIn, "zip entry uses an input stream but has a file being set");
+            Assertions.assertNull(zipIn, "zip entry uses an input stream but has a file being set!");
         }
 
 
@@ -193,7 +198,7 @@ public class TestZipEntry {
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             zipEntry.setTemporaryFile(temporaryFile);
-        }, "setting a file when an InputStream is used does not fail, as it would have been expected.");
+        }, "setting a file when an InputStream is used does not fail, as it is expected.");
 
 
         Assertions.assertNull(
@@ -223,7 +228,7 @@ public class TestZipEntry {
 
             @Override
             public String getPath() {
-                return "/test";
+                return TestZipEntry.ZIP_ENTRY_NAME;
             }
 
             @Override
@@ -236,13 +241,13 @@ public class TestZipEntry {
         Assertions.assertEquals(
             zipEntryData.getPath(),
             zipEntry.getName(),
-            "name of zip entry has not been copied correctly"
+            "name of zip entry has not been copied correctly!"
         );
 
         Assertions.assertArrayEquals(
             testData,
             IOUtils.toByteArray(zipEntry.getStream()),
-            "some different, unknown data was read"
+            "data for entry in the ZIP is invalid"
         );
     }
 
@@ -256,7 +261,7 @@ public class TestZipEntry {
 
             @Override
             public String getPath() {
-                return "/test";
+                return TestZipEntry.ZIP_ENTRY_NAME;
             }
 
             @Override
@@ -270,13 +275,13 @@ public class TestZipEntry {
         Assertions.assertEquals(
             zipEntryData.getPath(),
             zipEntry2.getName(),
-            "name of zip entry has not been copied correctly"
+            "name of zip entry is invalid"
         );
 
         Assertions.assertArrayEquals(
             testData,
             IOUtils.toByteArray(zipEntry2.getStream()),
-            "some different, unknown data was read"
+            "invalid data of entry in the ZIP"
         );
     }
 
@@ -290,7 +295,7 @@ public class TestZipEntry {
         Assertions.assertEquals(
             zipEntry.getName(),
             zipEntry2.getName(),
-            "name of zip entry has not been copied correctly"
+            "name of zip entry has not been stored correctly in ZIP"
         );
 
         Assertions.assertNull(
@@ -313,7 +318,7 @@ public class TestZipEntry {
     public void setInputStream_afterInputStream() throws IOException {
 
         try (final InputStream mockedInputStream = mock(InputStream.class)) {
-            final ZipEntry zipEntry = new ZipEntry("/myTest").setInputStream(mockedInputStream);
+            final ZipEntry zipEntry = new ZipEntry("/myTest2").setInputStream(mockedInputStream);
             zipEntry.setInputStream(new ByteArrayInputStream(this.createTemporaryData()));
             verify(mockedInputStream).close();
         }
