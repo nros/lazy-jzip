@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
@@ -89,9 +90,19 @@ public class TestZipperInputStream {
 
     @Test
     public void testFileSystemOutput() throws IOException {
-        final ZipperInputStream lzis = new ZipperInputStream(TestZipperInputStream.enumerate(this.file1, this.file2));
 
-        Files.copy(lzis, Paths.get("target", "output.zip"), StandardCopyOption.REPLACE_EXISTING);
-        lzis.close();
+        try (
+            final ZipperInputStream lzis =
+                new ZipperInputStream(TestZipperInputStream.enumerate(this.file1, this.file2));
+        ) {
+            final Path targetDirectory = Paths.get("target");
+            if (!targetDirectory.toFile().exists()) {
+                targetDirectory.toFile().mkdirs();
+            }
+
+            final Path targetFile = targetDirectory.resolve("output.zip");
+            Files.copy(lzis, targetFile, StandardCopyOption.REPLACE_EXISTING);
+            targetFile.toFile().delete();
+        }
     }
 }
