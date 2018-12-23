@@ -61,12 +61,12 @@ public abstract class BaseZipPacketBuilder {
      * <p>
      * Date and times are represented with two bytes (in little endian) and are encoded in standard MS-DOS format.
      * the time is encoded with the following bits:
+     * </p>
      *   <ul>
      *     <li>Bits 0 - 4:  seconds / 2 - with values from 0 to 29</li>
      *     <li>Bits 5 - 10:  minutes - with values from 0 to 59</li>
      *     <li>Bits 11 - 15:  hours - with values from 0 to 23</li>
      *   </ul>
-     * </p>
      *
      * @param fileTime - the date and time to be encoded
      * @return two bytes representing the time of the {@code FileTime}, encoded is MS-DOS format.
@@ -98,11 +98,13 @@ public abstract class BaseZipPacketBuilder {
      * <p>
      * Date and times are represented with two bytes (in little endian) and are encoded in standard MS-DOS format.
      * the date is encoded with the following bits:
+     * </p>
      *   <ul>
      *     <li>Bits 0 - 4:  day - with values from 1 to 31</li>
      *     <li>Bits 5 - 8:  month - with values from 1 to 12</li>
      *     <li>Bits 9 - 15:  year - with values from 0 to 127</li>
      *   </ul>
+     * <p>
      * The epoch for a MS-DOS date is 1980, thus you need to add {@code 1980} to the stored year value to calculate
      * the real year. Hence the maximum year in MS-DOS format is 2107.
      * </p>
