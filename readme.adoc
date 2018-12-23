@@ -10,6 +10,10 @@ the archives produced will be readable only by tools aware of this trick.
 Notably, `java.util.zip.ZipInputStream` is OK with that, so we use it to
 test compatibility.
 
+Doing _lazy_ zipping will avoid creating a temporary zip file and copying
+all data to be compressed. This is a big advantage in case your ZIP file
+tends do contain large files.
+
 == Using
 
 [source,java]
@@ -18,6 +22,20 @@ ZipperInputStream lzis = new ZipperInputStream(...);
 ----
 
 See more detailed example in `io.github.tsabirgaliev.ZipperInputStreamTest`
+
+== BUILDING
+
+You may build the library yourself using Maven or Gradle
+
+----
+mvn package
+----
+
+or
+
+----
+gradle jar
+----
 
 == TODO
 
