@@ -67,6 +67,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <checkstyle.config.location>config/checkstyle/checkstyle.xml</checkstyle.config.location>
+        <checkstyle.suppressions>config/checkstyle/suppressions.xml</checkstyle.suppressions>
     </properties>
 
     <dependencies>
@@ -182,6 +184,34 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.1</version>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <consoleOutput>true</consoleOutput>
+                </configuration>
+                <executions>
+                    <execution>
+                      <goals>
+                          <goal>check</goal>
+                      </goals>
+                      <configuration>
+                          <suppressionsLocation>${checkstyle.suppressions}</suppressionsLocation>
+                          <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
+                      </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>8.15</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
         </plugins>

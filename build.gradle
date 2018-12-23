@@ -1,3 +1,7 @@
+plugins {
+    id 'checkstyle'
+}
+
 
 apply plugin: "java"
 apply plugin: "maven"
@@ -21,6 +25,7 @@ repositories {
     jcenter()
 }
 
+
 dependencies {
     testCompile group: "commons-io", name: "commons-io", version:"2.5"
     testCompile group: "org.junit.jupiter", name: "junit-jupiter-engine", version:"5.3.2"
@@ -29,4 +34,15 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+
+checkstyle {
+    configFile = rootProject.file("config/checkstyle/checkstyle.xml")
+    configProperties = [
+        "configDir": rootProject.file("config/checkstyle"),
+        "baseDir": rootDir,
+    ]
+    toolVersion = "8.15"
+    // ignoreFailures = true
 }
