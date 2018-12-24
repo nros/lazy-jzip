@@ -14,7 +14,7 @@ import java.util.List;
  * starts. The EOCD uses a special signature byte in order to locate it at the end of the file.
  * </p>
  */
-public class CentralDirectoryBuilder extends BaseZipPacketBuilder {
+public class CentralDirectoryBuilder extends AbstractZipPacketBuilder {
 
     /**
      * create the central directory for the list of processed zip entries - in bytes.

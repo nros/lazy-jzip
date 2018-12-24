@@ -17,7 +17,7 @@ import java.io.IOException;
  * @see <a href="https://users.cs.jmu.edu/buchhofp/forensics/formats/pkzip.html"
  *     >https://users.cs.jmu.edu/buchhofp/forensics/formats/pkzip.html</a>
  */
-public class EndOfCentralDirectoryBuilder extends BaseZipPacketBuilder {
+public class EndOfCentralDirectoryBuilder extends AbstractZipPacketBuilder {
 
     private static final long PACKET_SIGNATURE = 0x06054b50;
     private static final long NUMBER_OF_ARCHIVE_PARTS = 0;

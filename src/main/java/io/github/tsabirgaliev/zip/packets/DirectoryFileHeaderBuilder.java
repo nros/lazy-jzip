@@ -13,7 +13,7 @@ import java.util.zip.ZipEntry;
  * vital to locate the compressed data.
  * </p>
  */
-public class DirectoryFileHeaderBuilder extends BaseZipPacketBuilder implements ZipEntryPacketBuilder {
+public class DirectoryFileHeaderBuilder extends AbstractZipPacketBuilder implements ZipEntryPacketBuilder {
 
 
     private static final byte[] EXTERNAL_ATTRIBUTES = {0x0, 0x0, (byte)0xa4, (byte)0x81};

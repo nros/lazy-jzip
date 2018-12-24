@@ -7,22 +7,24 @@ import java.util.TimeZone;
 /**
  * this abstract base class for packet builders for the ZIP archive provides utility functions for packet building.
  */
-public abstract class BaseZipPacketBuilder {
+public abstract class AbstractZipPacketBuilder {
 
     private static final int SHIFT_0_BYTE = 0;
     private static final int SHIFT_1_BYTE = 8;
-    private static final int SHIFT_2_BYTES = BaseZipPacketBuilder.SHIFT_1_BYTE * 2;
-    private static final int SHIFT_3_BYTES = BaseZipPacketBuilder.SHIFT_1_BYTE * 3;
+    private static final int SHIFT_2_BYTES = AbstractZipPacketBuilder.SHIFT_1_BYTE * 2;
+    private static final int SHIFT_3_BYTES = AbstractZipPacketBuilder.SHIFT_1_BYTE * 3;
 
     private static final String TIMEZONE_NAME_UTC = "UTC";
 
     private static final int BASE_YEAR_1980 = 1980;
     private static final int SHIFT__BITS_OF_DATE = 5;
-    private static final int SHIFT__BITS_OF_MONTH = BaseZipPacketBuilder.SHIFT__BITS_OF_DATE + 4;
+    private static final int SHIFT__BITS_OF_MONTH = AbstractZipPacketBuilder.SHIFT__BITS_OF_DATE + 4;
 
 
     private static final int SHIFT__BITS_OF_SECONDS = 5;
-    private static final int SHIFT__BITS_OF_MINUTES = BaseZipPacketBuilder.SHIFT__BITS_OF_SECONDS + 6;
+    private static final int SHIFT__BITS_OF_MINUTES = AbstractZipPacketBuilder.SHIFT__BITS_OF_SECONDS + 6;
+
+
 
     /**
      * converts an integer to the byte representation of an unsigned integer with 16 bits in little endian.
@@ -33,8 +35,8 @@ public abstract class BaseZipPacketBuilder {
      */
     protected byte[] convertLongToUInt16(final long i) {
         return new byte[] {
-            (byte)(i >> BaseZipPacketBuilder.SHIFT_0_BYTE),
-            (byte)(i >> BaseZipPacketBuilder.SHIFT_1_BYTE),
+            (byte)(i >> AbstractZipPacketBuilder.SHIFT_0_BYTE),
+            (byte)(i >> AbstractZipPacketBuilder.SHIFT_1_BYTE),
         };
     }
 
@@ -48,10 +50,10 @@ public abstract class BaseZipPacketBuilder {
      */
     protected byte[] convertLongToUInt32(final long i) {
         return new byte[] {
-            (byte)(i >> BaseZipPacketBuilder.SHIFT_0_BYTE),
-            (byte)(i >> BaseZipPacketBuilder.SHIFT_1_BYTE),
-            (byte)(i >> BaseZipPacketBuilder.SHIFT_2_BYTES),
-            (byte)(i >> BaseZipPacketBuilder.SHIFT_3_BYTES),
+            (byte)(i >> AbstractZipPacketBuilder.SHIFT_0_BYTE),
+            (byte)(i >> AbstractZipPacketBuilder.SHIFT_1_BYTE),
+            (byte)(i >> AbstractZipPacketBuilder.SHIFT_2_BYTES),
+            (byte)(i >> AbstractZipPacketBuilder.SHIFT_3_BYTES),
         };
     }
 
@@ -77,14 +79,15 @@ public abstract class BaseZipPacketBuilder {
      */
     protected byte[] convertFileTimeToZipTime(final FileTime fileTime) {
 
-        final Calendar fileDate = Calendar.getInstance(TimeZone.getTimeZone(BaseZipPacketBuilder.TIMEZONE_NAME_UTC));
+        final Calendar fileDate =
+            Calendar.getInstance(TimeZone.getTimeZone(AbstractZipPacketBuilder.TIMEZONE_NAME_UTC));
         if (fileTime != null) {
             fileDate.setTimeInMillis(fileTime.toMillis());
         }
 
         final int result = (
-            fileDate.get(Calendar.HOUR_OF_DAY) << BaseZipPacketBuilder.SHIFT__BITS_OF_MINUTES)
-            | (fileDate.get(Calendar.MINUTE) << BaseZipPacketBuilder.SHIFT__BITS_OF_SECONDS)
+            fileDate.get(Calendar.HOUR_OF_DAY) << AbstractZipPacketBuilder.SHIFT__BITS_OF_MINUTES)
+            | (fileDate.get(Calendar.MINUTE) << AbstractZipPacketBuilder.SHIFT__BITS_OF_SECONDS)
             | (fileDate.get(Calendar.SECOND) / 2
         );
 
@@ -119,7 +122,8 @@ public abstract class BaseZipPacketBuilder {
      */
     protected byte[] convertFileTimeToZipDate(final FileTime fileTime) {
 
-        final Calendar fileDate = Calendar.getInstance(TimeZone.getTimeZone(BaseZipPacketBuilder.TIMEZONE_NAME_UTC));
+        final Calendar fileDate =
+            Calendar.getInstance(TimeZone.getTimeZone(AbstractZipPacketBuilder.TIMEZONE_NAME_UTC));
         if (fileTime != null) {
             fileDate.setTimeInMillis(fileTime.toMillis());
         }
@@ -127,10 +131,10 @@ public abstract class BaseZipPacketBuilder {
         final int result =
             (
                 (
-                    fileDate.get(Calendar.YEAR) - BaseZipPacketBuilder.BASE_YEAR_1980
-                ) << BaseZipPacketBuilder.SHIFT__BITS_OF_MONTH
+                    fileDate.get(Calendar.YEAR) - AbstractZipPacketBuilder.BASE_YEAR_1980
+                ) << AbstractZipPacketBuilder.SHIFT__BITS_OF_MONTH
             )
-            | ((fileDate.get(Calendar.MONTH) + 1) << BaseZipPacketBuilder.SHIFT__BITS_OF_DATE)
+            | ((fileDate.get(Calendar.MONTH) + 1) << AbstractZipPacketBuilder.SHIFT__BITS_OF_DATE)
             | fileDate.get(Calendar.DATE);
 
         return this.convertLongToUInt16(result);

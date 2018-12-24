@@ -9,7 +9,7 @@ import io.github.tsabirgaliev.zip.ZipEntry;
 /**
  * creates the bytes of the local file header packet, which prepends the compressed data of the entry.
  */
-public class LocalFileHeaderBuilder extends BaseZipPacketBuilder implements ZipEntryPacketBuilder {
+public class LocalFileHeaderBuilder extends AbstractZipPacketBuilder implements ZipEntryPacketBuilder {
 
     public static final int     COMPRESSION_METHOD_STORED = 0;
     public static final int     COMPRESSION_METHOD_DEFLATE = 8;

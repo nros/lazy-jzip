@@ -19,7 +19,7 @@ import java.util.zip.ZipEntry;
  * All this to read the bytes of the compressed entry and add the sizes afterwards.
  * </p>
  */
-public class DataDescriptorBuilder extends BaseZipPacketBuilder implements ZipEntryPacketBuilder {
+public class DataDescriptorBuilder extends AbstractZipPacketBuilder implements ZipEntryPacketBuilder {
 
     private static final long PACKET_SIGNATURE = 0x08074b50;
 
