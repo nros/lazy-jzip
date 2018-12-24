@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package io.github.tsabirgaliev;
+package io.github.tsabirgaliev.zip;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 
 import io.github.tsabirgaliev.zip.ZipEntryData;
+import io.github.tsabirgaliev.zip.ZipperOutputStream;
 import io.github.tsabirgaliev.zip.io.ProxyInputStream;
 
 /**

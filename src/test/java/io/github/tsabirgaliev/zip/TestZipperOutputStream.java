@@ -1,4 +1,4 @@
-package io.github.tsabirgaliev;
+package io.github.tsabirgaliev.zip;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -12,6 +12,8 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import io.github.tsabirgaliev.zip.ZipperOutputStream;
 
 @DisplayName("Test ZipperOutputStream")
 public class TestZipperOutputStream {

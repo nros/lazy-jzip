@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.github.tsabirgaliev;
+package io.github.tsabirgaliev.zip;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -32,8 +32,6 @@ import java.util.NoSuchElementException;
 import java.util.zip.Deflater;
 import java.util.zip.ZipOutputStream;
 
-import io.github.tsabirgaliev.zip.ZipEntry;
-import io.github.tsabirgaliev.zip.ZipEntryData;
 import io.github.tsabirgaliev.zip.io.CountingInputStream;
 import io.github.tsabirgaliev.zip.io.ProxyInputStreamWithCloseListener;
 import io.github.tsabirgaliev.zip.packets.CentralDirectoryBuilder;
