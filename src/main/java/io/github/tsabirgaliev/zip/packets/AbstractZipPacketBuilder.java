@@ -9,6 +9,19 @@ import java.util.TimeZone;
  */
 public abstract class AbstractZipPacketBuilder {
 
+    /**
+     * the maximum value of an unsigned integer with 16 bits (two bytes) is {@value} (2^16 - 1).
+     */
+    public static final long MAX_UINT16 = 65535L;
+
+    /**
+     * the maximum value of an unsigned integer with 32 bits (four bytes) is {@value} (2^32 - 1).
+     */
+    public static final long MAX_UINT32 = 4294967295L;
+
+
+
+
     private static final int SHIFT_0_BYTE = 0;
     private static final int SHIFT_1_BYTE = 8;
     private static final int SHIFT_2_BYTES = AbstractZipPacketBuilder.SHIFT_1_BYTE * 2;
@@ -25,15 +38,24 @@ public abstract class AbstractZipPacketBuilder {
     private static final int SHIFT__BITS_OF_MINUTES = AbstractZipPacketBuilder.SHIFT__BITS_OF_SECONDS + 6;
 
 
-
     /**
      * converts an integer to the byte representation of an unsigned integer with 16 bits in little endian.
      *
-     * @param i - the integer value to convert to byte representation. Values higher than 65536 are just
-     *     ignored. All values are truncated.
+     * @param i the integer value to convert to byte representation.
+     *     Values higher than 65535 or below 0 lead to an exception.
      * @return two bytes, representing unsigned integer with 16 bits
+     * @throws IllegalArgumentException if the value of {@code i} is below {@code 0} ({@code i < 0}) or above
+     *     {@link #MAX_UINT16} ({@code i > {@link #MAX_UINT16}})
      */
     protected byte[] convertLongToUInt16(final long i) {
+
+        if (i > AbstractZipPacketBuilder.MAX_UINT16) {
+            throw new IllegalArgumentException("integer to convert to UINT16 is out of range: " + i);
+
+        } else if (i < 0) {
+            throw new IllegalArgumentException("integer to convert to UINT16 is below 0 and thus signed!");
+        }
+
         return new byte[] {
             (byte)(i >> AbstractZipPacketBuilder.SHIFT_0_BYTE),
             (byte)(i >> AbstractZipPacketBuilder.SHIFT_1_BYTE),
@@ -44,11 +66,21 @@ public abstract class AbstractZipPacketBuilder {
     /**
      * converts a long value to the byte representation of an unsigned integer with 32 bits in little endian.
      *
-     * @param i - the value to convert to byte representation. Values higher than 4294967296 are just
-     *     ignored. All values are truncated.
+     * @param i - the value to convert to byte representation.
+     *     Values higher than {@link #MAX_UINT32} or below 0 lead to an exception.
      * @return four bytes, representing unsigned integer with 32 bits in little endian
+     * @throws IllegalArgumentException if the value of {@code i} is below {@code 0} ({@code i < 0}) or above
+     *     {@link #MAX_UINT32} ({@code i > {@link #MAX_UINT32}})
      */
     protected byte[] convertLongToUInt32(final long i) {
+
+        if (i > AbstractZipPacketBuilder.MAX_UINT32) {
+            throw new IllegalArgumentException("integer to convert to UINT32 is out of range: " + i);
+
+        } else if (i < 0) {
+            throw new IllegalArgumentException("integer to convert to UINT32 is below 0 and thus signed!");
+        }
+
         return new byte[] {
             (byte)(i >> AbstractZipPacketBuilder.SHIFT_0_BYTE),
             (byte)(i >> AbstractZipPacketBuilder.SHIFT_1_BYTE),
