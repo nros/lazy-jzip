@@ -1,5 +1,7 @@
 package io.github.tsabirgaliev.zip.packets;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.file.attribute.FileTime;
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -19,13 +21,11 @@ public abstract class AbstractZipPacketBuilder {
      */
     public static final long MAX_UINT32 = 4294967295L;
 
+    private static final int UINT16_BYTES = 2;
+    private static final int UINT32_BYTES = 4;
 
-
-
-    private static final int SHIFT_0_BYTE = 0;
-    private static final int SHIFT_1_BYTE = 8;
-    private static final int SHIFT_2_BYTES = AbstractZipPacketBuilder.SHIFT_1_BYTE * 2;
-    private static final int SHIFT_3_BYTES = AbstractZipPacketBuilder.SHIFT_1_BYTE * 3;
+    private static final long UINT16_ALLOWED_BITS = 0xffffL;
+    private static final long UINT32_ALLOWED_BITS = 0xffffffffL;
 
     private static final String TIMEZONE_NAME_UTC = "UTC";
 
@@ -56,10 +56,13 @@ public abstract class AbstractZipPacketBuilder {
             throw new IllegalArgumentException("integer to convert to UINT16 is below 0 and thus signed!");
         }
 
-        return new byte[] {
-            (byte)(i >> AbstractZipPacketBuilder.SHIFT_0_BYTE),
-            (byte)(i >> AbstractZipPacketBuilder.SHIFT_1_BYTE),
-        };
+
+        return
+            ByteBuffer.allocate(AbstractZipPacketBuilder.UINT16_BYTES)
+            .order(ByteOrder.LITTLE_ENDIAN)
+            .putShort((short)(i & AbstractZipPacketBuilder.UINT16_ALLOWED_BITS))
+            .array()
+        ;
     }
 
 
@@ -81,12 +84,12 @@ public abstract class AbstractZipPacketBuilder {
             throw new IllegalArgumentException("integer to convert to UINT32 is below 0 and thus signed!");
         }
 
-        return new byte[] {
-            (byte)(i >> AbstractZipPacketBuilder.SHIFT_0_BYTE),
-            (byte)(i >> AbstractZipPacketBuilder.SHIFT_1_BYTE),
-            (byte)(i >> AbstractZipPacketBuilder.SHIFT_2_BYTES),
-            (byte)(i >> AbstractZipPacketBuilder.SHIFT_3_BYTES),
-        };
+        return
+            ByteBuffer.allocate(AbstractZipPacketBuilder.UINT32_BYTES)
+            .order(ByteOrder.LITTLE_ENDIAN)
+            .putInt((int)(i & AbstractZipPacketBuilder.UINT32_ALLOWED_BITS))
+            .array()
+        ;
     }
 
     /**
