@@ -65,9 +65,8 @@ public class ZipperOutputStream extends OutputStream {
     private ZipEntry currentEntry = null;
     private OutputStream temporaryFileForEntryBytes = null;
 
-    private final List<ZipEntry> entriesToZip = new ArrayList<>();
-    private final List<ProcessedZipEntry> fileEntries = new ArrayList<>();
-    private boolean wasCentralDirectoryProvided = false;
+    private final List<Object> entriesToZip = new ArrayList<>();
+    private ZipEntryEnumerator zipEntryEnumerator = null;
 
     private int compressionLevel = Deflater.DEFAULT_COMPRESSION;
     private int compressionMethod = ZipOutputStream.DEFLATED;
@@ -152,6 +151,11 @@ public class ZipperOutputStream extends OutputStream {
      * Begins writing a new ZIP file entry and positions the stream to the start of the entry data.
      *
      * <p>
+     * In case the provided new entry if of type {@link io.github.tsabirgaliev.zip.ZipEntry}, then no new entry
+     * data is started, but the new entry is regarded as already prepared and closed.
+     * </p>
+     *
+     * <p>
      * Closes the previous entry if still active.
      * The default compression method will be used if no compression method was specified for the entry, and the
      * current time will be used if the entry has no set modification time.
@@ -171,36 +175,41 @@ public class ZipperOutputStream extends OutputStream {
      * @see java.util.zip.ZipOutputStream#putNextEntry(java.util.zip.ZipEntry)
      */
     public ZipperOutputStream putNextEntry(final java.util.zip.ZipEntry addEntryToZip) throws IOException {
-        if (!this.canAddMoreZipEntry()) {
-            throw new IOException("Cannot add more ZIP entries. central directory has already been written!");
-        }
+        return this.addNextEntry(addEntryToZip);
+    }
 
-        this.closeEntry();
 
-        ZipEntry entryToAdd = null;
-        if (addEntryToZip != null && addEntryToZip instanceof ZipEntry) {
-            entryToAdd = (ZipEntry)addEntryToZip;
-            this.entriesToZip.add(entryToAdd);
 
-        } else if (addEntryToZip != null) {
-
-            entryToAdd = new ZipEntry(addEntryToZip);
-            this.currentEntry = entryToAdd;
-        }
-
-        if (
-            entryToAdd != null
-                && entryToAdd.getMethod() != ZipOutputStream.DEFLATED
-                && entryToAdd.getMethod() != ZipOutputStream.STORED
-        ) {
-            entryToAdd.setMethod(this.compressionMethod);
-        }
-
-        if (entryToAdd != null && this.compressionLevel >= 0) {
-            entryToAdd.setCompressionLevel(this.compressionLevel);
-        }
-
-        return this;
+    /**
+     * adds multiple entries to the ZIP at once.
+     *
+     * <p>
+     * Closes the previous entry if still active.
+     * </p>
+     *
+     * <p>
+     * The provided {@link java.util.Enumeration} is not evaluated/listed immediately. Only as soon as the zipping
+     * takes place, it is enumerated. Even then this is not done right at the beginning of zipping but on-the-fly,
+     * when this new entry is due to be added to the ZIP.
+     * </p>
+     *
+     * <p>
+     * No bytes of this entry are written to any ZIP yet. So any changes to the data in the passed-in entry will have
+     * an effect, with the exception to the compression method and compression level.
+     * Therefore the CRC32 checksum and file sizes will be calculated automatically by this class.
+     * </p>
+     *
+     * @param multipleEntries - an enumeration of multiple entries of type {@link io.github.tsabirgaliev.zip.ZipEntry}
+     *     to add to the ZIP. The enumeration is NOT evaluated/listed now, but only when the actual zipping takes
+     *     place.
+     * @return this instance to allow a <a href="https://en.wikipedia.org/wiki/Fluent_interface">fluent interface</a>
+     * @throws IOException in case no more entries can be added because the central directory of the ZIP archive has
+     *     already been created.
+     */
+    public ZipperOutputStream putMultipleNextEntries(
+        final Enumeration<ZipEntryData> multipleEntries
+    ) throws IOException {
+        return this.addNextEntry(multipleEntries);
     }
 
 
@@ -531,7 +540,7 @@ public class ZipperOutputStream extends OutputStream {
      *     and {@code false} otherwise.
      */
     public boolean canAddMoreZipEntry() {
-        return !this.wasCentralDirectoryProvided;
+        return this.zipEntryEnumerator == null || !this.zipEntryEnumerator.wasCentralDirectoryCreated();
     }
 
 
@@ -565,56 +574,10 @@ public class ZipperOutputStream extends OutputStream {
      */
     protected Enumeration<InputStream> createEnumerationWrapper() {
 
-        @SuppressWarnings("resource")
-        final ZipperOutputStream myself = this;
-        return new Enumeration<InputStream>() {
-
-            private long localHeaderOffset = 0;
-
-            @Override
-            public boolean hasMoreElements() {
-                return !myself.wasCentralDirectoryProvided;
-            }
-
-            @SuppressWarnings("resource")
-            @Override
-            public InputStream nextElement() {
-
-                if (myself.entriesToZip.isEmpty() && myself.currentEntry != null) {
-                    try {
-                        myself.closeEntry();
-                    } catch (final IOException ignore) {
-                    }
-                }
-
-                if (!myself.entriesToZip.isEmpty()) {
-
-                    final ZipEntry zipEntry = myself.entriesToZip.remove(0);
-                    final ProcessedZipEntry entry = new DefaultProcessedZipEntry(zipEntry);
-                    entry.setLocalFileHeaderOffset(this.localHeaderOffset);
-                    myself.fileEntries.add(entry);
-
-                    final List<InputStream> entryParts = Arrays.asList(
-                        new ByteArrayInputStream(entry.getLocalFileHeader()),
-                        zipEntry.getStream(),
-                        entry.getDataDescriptorPacketStream()
-                    );
-
-                    return new ProxyInputStreamWithCloseListener<CountingInputStream>(
-                        new CountingInputStream(
-                            new SequenceInputStream(Collections.enumeration(entryParts))
-                        )
-                    ).addCloseListener((countingStream) -> this.localHeaderOffset += countingStream.getByteCount());
-
-                } else if (!myself.wasCentralDirectoryProvided) {
-
-                    myself.wasCentralDirectoryProvided = true;
-                    return new ByteArrayInputStream(new CentralDirectoryBuilder().getBytes(myself.fileEntries));
-                }
-
-                throw new NoSuchElementException("No more elements to produce!");
-            }
-        };
+        if (this.zipEntryEnumerator == null) {
+            this.zipEntryEnumerator = new ZipEntryEnumerator(this);
+        }
+        return this.zipEntryEnumerator;
     }
 
 
@@ -646,4 +609,235 @@ public class ZipperOutputStream extends OutputStream {
 
         return this.temporaryFileForEntryBytes;
     }
+
+
+    /**
+     * adds a new ZIP entry to the list of ZIP entries.
+     *
+     * <p>
+     * Closes the previous entry if still active.
+     * The default compression method will be used if no compression method was specified for the entry, and the
+     * current time will be used if the entry has no set modification time.
+     * </p>
+     *
+     * <p>
+     * No bytes of this entry are written to any ZIP yet. So any changes to the data in the passed-in entry will have
+     * an effect, with the exception to the compression method and compression level.
+     * Therefore the CRC32 checksum and file sizes will be calculated automatically by this class.
+     * </p>
+     *
+     * @param addEntryToZip - the ZIP entry to be written
+     * @return this instance to allow a <a href="https://en.wikipedia.org/wiki/Fluent_interface">fluent interface</a>
+     * @throws IOException in case no more entries can be added because the central directory of the ZIP archive has
+     *     already been created.
+     * @see java.util.zip.ZipOutputStream#putNextEntry(java.util.zip.ZipEntry)
+     */
+    private ZipperOutputStream addNextEntry(final Object addEntryToZip) throws IOException {
+        if (!this.canAddMoreZipEntry()) {
+            throw new IOException("Cannot add more ZIP entries. central directory has already been created!");
+        }
+
+        this.closeEntry();
+
+        if (addEntryToZip != null) {
+
+            ZipEntry entryToAdd = null;
+            if (addEntryToZip instanceof java.util.zip.ZipEntry) {
+                entryToAdd = new ZipEntry((java.util.zip.ZipEntry)addEntryToZip);
+                this.currentEntry = entryToAdd;
+
+            } else {
+                this.entriesToZip.add(addEntryToZip);
+                entryToAdd = addEntryToZip instanceof ZipEntry ? (ZipEntry)addEntryToZip : entryToAdd;
+            }
+
+            if (
+                entryToAdd != null
+                    && entryToAdd.getMethod() != ZipOutputStream.DEFLATED
+                    && entryToAdd.getMethod() != ZipOutputStream.STORED
+            ) {
+                entryToAdd.setMethod(this.compressionMethod);
+            }
+
+            if (entryToAdd != null && this.compressionLevel >= 0) {
+                entryToAdd.setCompressionLevel(this.compressionLevel);
+            }
+        }
+
+
+        return this;
+    }
+
+
+    /**
+     * creates an enumerator which creates {@code InputStream} items on the fly.
+     * This can be used to create a {@code java.io.SequenceInputStream}.
+     */
+    private class ZipEntryEnumerator implements Enumeration<InputStream> {
+
+        private final ZipperOutputStream _containerWithZipEntries;
+        private final List<ProcessedZipEntry> fileEntries = new ArrayList<>();
+        private long localHeaderOffset = 0;
+        private boolean wasCentralDirectoryProvided = false;
+
+        // we can not check generics at run time, so there is no need to specify a type here
+        private Enumeration<Object> entryAsEnumeration = null;
+
+
+        public ZipEntryEnumerator(final ZipperOutputStream containerWithZipEntries) {
+            this._containerWithZipEntries = containerWithZipEntries;
+        }
+
+        public boolean wasCentralDirectoryCreated() {
+            return this.wasCentralDirectoryProvided;
+        }
+
+        @Override
+        public boolean hasMoreElements() {
+            return !this.wasCentralDirectoryProvided;
+        }
+
+        @Override
+        public InputStream nextElement() {
+
+            final ZipEntry zipEntry = this.getNextZipEntry();
+            if (zipEntry != null) {
+                return this.wrapEntryIntoInputStream(zipEntry);
+
+            } else if (!this.wasCentralDirectoryProvided) {
+
+                this.wasCentralDirectoryProvided = true;
+                return new ByteArrayInputStream(new CentralDirectoryBuilder().getBytes(this.fileEntries));
+            }
+
+            throw new NoSuchElementException("No more elements to produce!");
+        }
+
+
+        private ZipEntry getNextZipEntry() {
+
+            ZipEntry nextEntry = null;
+            while (nextEntry == null) {
+                try {
+                    nextEntry = this.getNextItemFromEnumerationEntry();
+                    nextEntry = nextEntry != null ? nextEntry : this.getNextEntryFromList();
+
+                    if (nextEntry != null) {
+
+                        if (nextEntry.getMethod() != ZipOutputStream.DEFLATED
+                            && nextEntry.getMethod() != ZipOutputStream.STORED
+                        ) {
+                            nextEntry.setMethod(this._containerWithZipEntries.compressionMethod);
+                            nextEntry.setCompressionLevel(this._containerWithZipEntries.compressionLevel);
+                        }
+
+                        if (
+                            this._containerWithZipEntries.compressionLevel > Deflater.BEST_COMPRESSION
+                                || this._containerWithZipEntries.compressionLevel < Deflater.BEST_SPEED
+                        ) {
+                            nextEntry.setCompressionLevel(this._containerWithZipEntries.compressionLevel);
+                        }
+                    }
+
+                } catch (final NoSuchElementException ignore) {
+                    break;
+                }
+            } // while
+
+            return nextEntry;
+        }
+
+
+        @SuppressWarnings("unchecked")
+        private ZipEntry getNextEntryFromList() throws NoSuchElementException {
+
+            // ---- figure out an entry to use. Invalid entries are just ignored
+            ZipEntry nextEntry = this.getNextItemFromEnumerationEntry();
+            // get the next entry from the list
+            while (nextEntry == null && !this._containerWithZipEntries.entriesToZip.isEmpty()) {
+
+                final Object item = this._containerWithZipEntries.entriesToZip.remove(0);
+                if (item instanceof ZipEntry) {
+                    nextEntry = (ZipEntry)item;
+
+                } else if (item instanceof java.util.zip.ZipEntry) {
+                    nextEntry = new ZipEntry((java.util.zip.ZipEntry)item);
+
+                } else if (item instanceof ZipEntryData) {
+                    nextEntry = new ZipEntry((ZipEntryData)item);
+
+                } else if (item instanceof Enumeration<?>) {
+                    this.entryAsEnumeration = (Enumeration<Object>)item;
+                    // try again form the start
+                    return null;
+                }
+            }
+
+            if (nextEntry == null) {
+                throw new NoSuchElementException("no more elements in list");
+            }
+
+            return nextEntry;
+        }
+
+
+        private ZipEntry getNextItemFromEnumerationEntry() {
+            // ---- figure out an entry to use. Invalid entries are just ignored
+            ZipEntry nextEntry = null;
+
+            // check enumeration entry
+            while (
+                nextEntry == null
+                    && this.entryAsEnumeration != null
+                    && this.entryAsEnumeration.hasMoreElements()
+            ) {
+
+                final Object item = this.entryAsEnumeration.nextElement();
+                if (item instanceof ZipEntry) {
+                    nextEntry = (ZipEntry)item;
+
+                } else if (item instanceof java.util.zip.ZipEntry) {
+                    nextEntry = new ZipEntry((java.util.zip.ZipEntry)item);
+
+                } else if (item instanceof ZipEntryData) {
+                    nextEntry = new ZipEntry((ZipEntryData)item);
+                }
+                // ignore all other types of data
+            }
+
+            // clean up
+            if (this.entryAsEnumeration != null && !this.entryAsEnumeration.hasMoreElements()) {
+                this.entryAsEnumeration = null;
+            }
+
+            return nextEntry;
+        }
+
+
+        @SuppressWarnings("resource")
+        private InputStream wrapEntryIntoInputStream(final ZipEntry zipEntry) {
+            if (zipEntry != null) {
+
+                // create the stream to read the entry
+                final ProcessedZipEntry entry = new DefaultProcessedZipEntry(zipEntry);
+                entry.setLocalFileHeaderOffset(this.localHeaderOffset);
+                this.fileEntries.add(entry);
+
+                final List<InputStream> entryParts = Arrays.asList(
+                    new ByteArrayInputStream(entry.getLocalFileHeader()),
+                    zipEntry.getStream(),
+                    entry.getDataDescriptorPacketStream()
+                );
+
+                return new ProxyInputStreamWithCloseListener<CountingInputStream>(
+                    new CountingInputStream(
+                        new SequenceInputStream(Collections.enumeration(entryParts))
+                    )
+                ).addCloseListener((countingStream) -> this.localHeaderOffset += countingStream.getByteCount());
+            }
+
+            return null;
+        }
+    }
+
 }

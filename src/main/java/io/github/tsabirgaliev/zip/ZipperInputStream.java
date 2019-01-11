@@ -17,7 +17,6 @@
 package io.github.tsabirgaliev.zip;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Enumeration;
 
 import io.github.tsabirgaliev.zip.io.ProxyInputStream;
@@ -51,11 +50,7 @@ public class ZipperInputStream extends ProxyInputStream {
     public ZipperInputStream(final Enumeration<ZipEntryData> zipEntries) throws IOException {
         super();
         final ZipperOutputStream zip = new ZipperOutputStream();
-        if (zipEntries != null) {
-            for (final ZipEntryData zipEntry : Collections.list(zipEntries)) {
-                zip.putNextEntry(zipEntry);
-            }
-        }
+        zip.putMultipleNextEntries(zipEntries);
 
         zip.close();
         this.setInputStream(zip.asInputStream());
