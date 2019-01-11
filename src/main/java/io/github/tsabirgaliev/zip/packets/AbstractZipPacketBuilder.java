@@ -57,12 +57,10 @@ public abstract class AbstractZipPacketBuilder {
         }
 
 
-        return
-            ByteBuffer.allocate(AbstractZipPacketBuilder.UINT16_BYTES)
-            .order(ByteOrder.LITTLE_ENDIAN)
-            .putShort((short)(i & AbstractZipPacketBuilder.UINT16_ALLOWED_BITS))
-            .array()
-        ;
+        return ByteBuffer.allocate(AbstractZipPacketBuilder.UINT16_BYTES)
+                .order(ByteOrder.LITTLE_ENDIAN)
+                .putShort((short)(i & AbstractZipPacketBuilder.UINT16_ALLOWED_BITS))
+                .array();
     }
 
 
@@ -84,12 +82,10 @@ public abstract class AbstractZipPacketBuilder {
             throw new IllegalArgumentException("integer to convert to UINT32 is below 0 and thus signed!");
         }
 
-        return
-            ByteBuffer.allocate(AbstractZipPacketBuilder.UINT32_BYTES)
-            .order(ByteOrder.LITTLE_ENDIAN)
-            .putInt((int)(i & AbstractZipPacketBuilder.UINT32_ALLOWED_BITS))
-            .array()
-        ;
+        return ByteBuffer.allocate(AbstractZipPacketBuilder.UINT32_BYTES)
+                .order(ByteOrder.LITTLE_ENDIAN)
+                .putInt((int)(i & AbstractZipPacketBuilder.UINT32_ALLOWED_BITS))
+                .array();
     }
 
     /**
@@ -111,6 +107,7 @@ public abstract class AbstractZipPacketBuilder {
      *     >https://pkware.cachefly.net/webdocs/APPNOTE/APPNOTE-4.5.0.txt</a>
      * @see <a href="http://www.sandersonforensics.com/forum/content.php?131-A-brief-history-of-time-stamps"
      *     >http://www.sandersonforensics.com/forum/content.php?131-A-brief-history-of-time-stamps</a>
+     * @see <a href="http://www.vsft.com/hal/dostime.htm">http://www.vsft.com/hal/dostime.htm</a>
      */
     protected byte[] convertFileTimeToZipTime(final FileTime fileTime) {
 

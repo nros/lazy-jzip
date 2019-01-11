@@ -131,8 +131,8 @@ public class ZipEntry extends java.util.zip.ZipEntry {
      * @param deleteFileOnFullyRead - if set to {@code true}, the file is deleted as soon as the created input stream
      *     is closed. Use with care and set only if you delegate the clean-up of the temporary file to this class.
      * @return this instance to allow a <a href="https://en.wikipedia.org/wiki/Fluent_interface">fluent interface</a>
-     * @throws IllegalArgumentException in case an {@code InputStream} has already been fetched from a previous supplier via
-     *     {@link #getInputStream()}
+     * @throws IllegalArgumentException in case an {@code InputStream} has already been fetched from a previous
+     *     supplier via {@link #getInputStream()}
      */
     @SuppressWarnings("resource")
     public ZipEntry setFile(final File fileToZip, final boolean deleteFileOnFullyRead) {
@@ -153,8 +153,11 @@ public class ZipEntry extends java.util.zip.ZipEntry {
 
                     return closeableStream;
 
-                } catch (final FileNotFoundException e) {
-                    throw new RuntimeException("failed to open file", e);
+                } catch (final FileNotFoundException exception) {
+                    throw new RuntimeException(
+                        "failed to open temporary file: " + fileToZip.getAbsolutePath(),
+                        exception
+                    );
                 }
 
             });
@@ -163,8 +166,11 @@ public class ZipEntry extends java.util.zip.ZipEntry {
             return this.setInputStreamSupplier(() -> {
                 try {
                     return new FileInputStream(fileToZip);
-                } catch (final FileNotFoundException e) {
-                    throw new RuntimeException("failed to open file", e);
+                } catch (final FileNotFoundException exception) {
+                    throw new RuntimeException(
+                        "failed to open file: " + fileToZip.getAbsolutePath(),
+                        exception
+                    );
                 }
             });
         }
