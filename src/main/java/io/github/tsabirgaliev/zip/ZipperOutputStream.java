@@ -629,19 +629,14 @@ public class ZipperOutputStream extends OutputStream {
      * @throws IPEception if there is no current entry active or if this entry already has a file or an input stream
      *     attached as data source.
      */
-    private OutputStream createTemporaryEntryStream() throws IOException {
+    private OutputStream createTemporaryEntryStream() throws IllegalArgumentException, IOException {
 
         if (this.currentEntry == null) {
-            throw new IOException("no entry to write to has been created yet");
+            throw new IllegalArgumentException("no entry to write to has been created yet");
         }
 
         // create a new temporary file
         if (this.temporaryFileForEntryBytes == null) {
-
-            if (this.currentEntry.getInputStream() != null || this.currentEntry.getFile() != null) {
-                throw new IOException("the entry already has data attached and no more can be added!");
-            }
-
 
             final File temporaryFile = File.createTempFile("ZipEntry", ".bin");
             temporaryFile.deleteOnExit();

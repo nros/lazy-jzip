@@ -1,8 +1,5 @@
 package io.github.tsabirgaliev.zip;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -73,11 +70,6 @@ public class TestZipEntry {
 
         Assertions.assertNotNull(zipIn, "zip entry stram is invalid (null)");
 
-        Assertions.assertTrue(
-            zipEntry.isFileDeletedOnFullyRead(),
-            "marker to delete the temporary file is not being set properly"
-        );
-
         Assertions.assertArrayEquals(
             IOUtils.toByteArray(zipIn),
             IOUtils.toByteArray(temporaryFile.toURI()),
@@ -99,11 +91,6 @@ public class TestZipEntry {
 
         Assertions.assertNotNull(zipIn, "zip entry stream is invalid with temporary file");
 
-        Assertions.assertTrue(
-            zipEntry.isFileDeletedOnFullyRead(),
-            "failed to set marker to delete the temporary file later"
-        );
-
         Assertions.assertArrayEquals(
             IOUtils.toByteArray(temporaryFile.toURI()),
             IOUtils.toByteArray(zipIn),
@@ -117,58 +104,20 @@ public class TestZipEntry {
 
 
     @Test
-    public void getInputStream() throws IOException {
-
-        final File temporaryFile = this.createTemporaryFileWithData();
-        final ZipEntry zipEntry = new ZipEntry(TestZipEntry.ZIP_ENTRY_NAME).setTemporaryFile(temporaryFile);
-        try (final InputStream zipIn = zipEntry.getInputStream()) {
-            Assertions.assertNull(zipIn, "zip entry uses an input stream but has a temporary file being set");
-        }
-
-        Assertions.assertTrue(
-            zipEntry.getFile() == temporaryFile,
-            "zip entry does not return same file as passed-in!"
-        );
-        temporaryFile.delete();
-    }
-
-
-    @Test
     public void setInputStream_AfterFile() throws IOException {
 
         final File temporaryFile = this.createTemporaryFileWithData();
         final ZipEntry zipEntry = new ZipEntry(TestZipEntry.ZIP_ENTRY_NAME).setTemporaryFile(temporaryFile);
         final byte[] otherTestData = this.createTemporaryData();
 
-        try (final InputStream zipIn = zipEntry.getInputStream()) {
-            Assertions.assertNull(zipIn, "zip entry uses an input stream but already has a file attached");
-        }
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            zipEntry.setInputStream(new ByteArrayInputStream(otherTestData));
-        }, "setting a file when an InputStream is used does not fail, as it would have been expected!");
-
-
-        try (final InputStream zipIn = zipEntry.getInputStream()) {
-            Assertions.assertNull(zipIn, "zip entry does use an input stream although a file has being set");
-        }
-
-        Assertions.assertTrue(
-            zipEntry.getFile() == temporaryFile,
-            "zip entry does not return same file as passed-in"
-        );
-
+        final InputStream testInStream = new ByteArrayInputStream(otherTestData);
+        zipEntry.setInputStream(testInStream);
 
         try (final InputStream zipIn = zipEntry.getStream()) {
-
-            try (final InputStream zipIn2 = zipEntry.getInputStream()) {
-                Assertions.assertNull(zipIn2, "zip entry does use an input stream although a file is used");
-            }
-
             Assertions.assertArrayEquals(
-                IOUtils.toByteArray(temporaryFile.toURI()),
+                IOUtils.toByteArray(new ByteArrayInputStream(otherTestData)),
                 IOUtils.toByteArray(zipIn),
-                "input stream does not get precedence over file"
+                "input stream is not being used after file"
             );
         }
 
@@ -199,12 +148,6 @@ public class TestZipEntry {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             zipEntry.setTemporaryFile(temporaryFile);
         }, "setting a file when an InputStream is used does not fail, as it is expected.");
-
-
-        Assertions.assertNull(
-            zipEntry.getFile(),
-            "zip entry has a file being set although an InputStream is used"
-        );
 
 
         try (final InputStream zipIn = zipEntry.getStream()) {
@@ -303,25 +246,8 @@ public class TestZipEntry {
             "some stream has been set unexpectedly"
         );
 
-        Assertions.assertNull(
-            zipEntry2.getFile(),
-            "some file has been set unexpectedly"
-        );
-
         Assertions.assertThrows(RuntimeException.class, () -> {
             zipEntry2.getStream();
         }, "getting a stream although neither a file nor any input data has been set");
-    }
-
-
-    @Test
-    public void setInputStream_afterInputStream() throws IOException {
-
-        try (final InputStream mockedInputStream = mock(InputStream.class)) {
-            final ZipEntry zipEntry = new ZipEntry("/myTest2").setInputStream(mockedInputStream);
-            zipEntry.setInputStream(new ByteArrayInputStream(this.createTemporaryData()));
-            verify(mockedInputStream).close();
-        }
-
     }
 }
