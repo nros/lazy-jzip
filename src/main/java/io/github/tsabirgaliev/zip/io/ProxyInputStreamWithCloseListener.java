@@ -57,12 +57,12 @@ public class ProxyInputStreamWithCloseListener<T extends InputStream> extends Pr
         super.close();
 
         for (final Consumer<T> closeListener : this.closeListeners) {
-            // CHECKSTYLE:OFF
+            // CHECKSTYLE OFF: IllegalCatch
             try {
                 closeListener.accept(wrappedStream);
             } catch (final Exception ignore) {
             }
-            // CHECKSTYLE:ON
+            // CHECKSTYLE ON: IllegalCatch
         }
     }
 }
